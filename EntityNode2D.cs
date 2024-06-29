@@ -53,7 +53,7 @@ public abstract partial class EntityNode2D : Node2D, IEntityNode {
         get => Rotation;
         set {
             Rotation = value;
-            GetNode<Node2D>("%NoRotating").Rotation = -value;
+            //GetNode<Node2D>("%NoRotating").Rotation = -value;
         }
     }
 
@@ -96,8 +96,8 @@ public abstract partial class EntityNode2D : Node2D, IEntityNode {
             * Util.Rotation(-squishAngle)
             * Util.Translation(-translation)
             * Transform;
-        GetNode<Node2D>("%NoRotating").Scale = Vector2.One / BaseScale;
-        GetNode<Node2D>("%NoRotating").Rotation = -Rotation;
+        //GetNode<Node2D>("%NoRotating").Scale = Vector2.One / BaseScale;
+        //GetNode<Node2D>("%NoRotating").Rotation = -Rotation;
     }
 
     void SetModulateRgbRecursive(Node node, Color value) {

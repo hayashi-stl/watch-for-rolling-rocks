@@ -401,8 +401,6 @@ public partial class Level : Node2D
             Left,
             Right,
             Wait,
-            Turn,
-            Punch,
             Undo,
         }
 
@@ -596,8 +594,6 @@ public partial class Level : Node2D
         _buttons[(int)GameButton.Action.Left]  = new GameButton("left",  true);
         _buttons[(int)GameButton.Action.Right] = new GameButton("right", true);
         _buttons[(int)GameButton.Action.Wait]  = new GameButton("wait",  true);
-        _buttons[(int)GameButton.Action.Punch] = new GameButton("punch", false);
-        _buttons[(int)GameButton.Action.Turn]  = new GameButton("turn",  false);
         _buttons[(int)GameButton.Action.Undo]  = new GameButton("undo",  true);
 
         if (Engine.EditorHint)
@@ -968,9 +964,6 @@ public partial class Level : Node2D
         var action = PuzzleInput.Action.Move;
         var dir = Vector3I.Zero;
         
-        if (_buttons[(int)GameButton.Action.Turn].Held)
-            action = PuzzleInput.Action.Turn;
-        
         if (_buttons[(int)GameButton.Action.Up].JustPressed)
             dir = Util.DirVec(Util.Direction.Up);
         else if (_buttons[(int)GameButton.Action.Down].JustPressed)
@@ -981,8 +974,6 @@ public partial class Level : Node2D
             dir = Util.DirVec(Util.Direction.Right);
         else if (_buttons[(int)GameButton.Action.Wait].JustPressed)
             {}
-        else if (_buttons[(int)GameButton.Action.Punch].JustPressed)
-            action = PuzzleInput.Action.Punch;
         else if (_buttons[(int)GameButton.Action.Undo].JustPressed)
             action = PuzzleInput.Action.Undo;
         else

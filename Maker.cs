@@ -53,8 +53,7 @@ public class Maker : Node2D
         LevelName = level.Name;
 
         // Fill entries from the grid map
-        var tileMapFloor = GetNode<TileMap>("%TileMapFloor");
-        var tileMapWall = GetNode<TileMap>("%TileMapWall");
+        var tileMap= GetNode<TileMap>("%TileMap");
         for (int z = Level.MinZ; z < Level.MinZ + Level.SizeZ; ++z)
             for (int y = level.Base.y; y < level.Base.y + level.Size.y; ++y)
                 for (int x = level.Base.x; x < level.Base.x + level.Size.x; ++x) {
@@ -63,12 +62,7 @@ public class Maker : Node2D
                     var cell = level.Map[(mapPosition.z * level.Size.y + mapPosition.y) * level.Size.x + mapPosition.x];
 
                     if (cell != 0) {
-                        if (z == 0) {
-                            tileMapFloor.SetCell(x, y, 0);
-                        } else if (z == 1) {
-                            tileMapFloor.SetCell(x, y, -1);
-                            tileMapWall.SetCell(x, y, 1);
-                        }
+                        tileMap.SetCell(x, y, z);
                     }
                 }
 
