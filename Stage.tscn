@@ -1,0 +1,65 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Counter.otf" type="DynamicFontData" id=1]
+[ext_resource path="res://Stage.cs" type="Script" id=2]
+
+[sub_resource type="DynamicFont" id=2]
+size = 60
+outline_size = 3
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=1]
+size = 213
+outline_size = 12
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 1 )
+
+[node name="Stage" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Title" type="Label" parent="."]
+unique_name_in_owner = true
+margin_top = 14.0
+margin_right = 1920.0
+margin_bottom = 54.0
+rect_pivot_offset = Vector2( 960, 0 )
+custom_fonts/font = SubResource( 2 )
+text = "This is a title."
+align = 1
+
+[node name="Controls" type="Label" parent="."]
+unique_name_in_owner = true
+margin_top = 1003.0
+margin_right = 1920.0
+margin_bottom = 1063.0
+rect_pivot_offset = Vector2( 960, 0 )
+custom_fonts/font = SubResource( 2 )
+text = "These are the controls."
+align = 1
+
+[node name="Timer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 2.0
+
+[node name="Node2D" type="Node2D" parent="."]
+z_index = 151
+
+[node name="CenterContainer" type="CenterContainer" parent="Node2D"]
+margin_right = 1920.0
+margin_bottom = 1080.0
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Clear" type="Label" parent="Node2D/CenterContainer"]
+unique_name_in_owner = true
+visible = false
+margin_left = 521.0
+margin_top = 433.0
+margin_right = 1399.0
+margin_bottom = 647.0
+custom_fonts/font = SubResource( 1 )
+text = "Level Clear!"
+
+[connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]

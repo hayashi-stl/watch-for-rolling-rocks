@@ -8,6 +8,28 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "ResourceFormatLoader",
+"class": "CustomResFormatLoader",
+"language": "GDScript",
+"path": "res://addons/custom_resource/plain_text_resource_loader.gd"
+}, {
+"base": "ResourceFormatSaver",
+"class": "CustomResFormatSaver",
+"language": "GDScript",
+"path": "res://addons/custom_resource/plain_text_resource_saver.gd"
+}, {
+"base": "Resource",
+"class": "PlainTextResource",
+"language": "GDScript",
+"path": "res://addons/custom_resource/plain_text_resource.gd"
+} ]
+_global_script_class_icons={
+"CustomResFormatLoader": "",
+"CustomResFormatSaver": "",
+"PlainTextResource": ""
+}
+
 [application]
 
 config/name="Watch for Rolling Rocks"
@@ -18,6 +40,10 @@ config/icon="res://icon.png"
 
 window/size/width=1920
 window/size/height=1080
+
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/custom_resource/plugin.cfg" )
 
 [gui]
 

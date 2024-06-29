@@ -1,0 +1,242 @@
+[gd_scene load_steps=26 format=2]
+
+[ext_resource path="res://Counter.otf" type="DynamicFontData" id=1]
+[ext_resource path="res://LevelSelect.cs" type="Script" id=2]
+[ext_resource path="res://LevelSelectButton.cs" type="Script" id=3]
+[ext_resource path="res://Level/001.json" type="Resource" id=4]
+[ext_resource path="res://Level/002.json" type="Resource" id=5]
+[ext_resource path="res://Level/006.json" type="Resource" id=6]
+[ext_resource path="res://Level/005.json" type="Resource" id=7]
+[ext_resource path="res://Level/011.json" type="Resource" id=8]
+[ext_resource path="res://Level/012.json" type="Resource" id=9]
+[ext_resource path="res://Level/013.json" type="Resource" id=10]
+[ext_resource path="res://Level/014.json" type="Resource" id=11]
+[ext_resource path="res://Level/015.json" type="Resource" id=12]
+[ext_resource path="res://Level/016.json" type="Resource" id=13]
+[ext_resource path="res://Level/019.json" type="Resource" id=14]
+[ext_resource path="res://Level/018.json" type="Resource" id=15]
+[ext_resource path="res://Level/022.json" type="Resource" id=16]
+[ext_resource path="res://Level/023.json" type="Resource" id=17]
+[ext_resource path="res://Level/021.json" type="Resource" id=18]
+[ext_resource path="res://Level/100_MovePriorityTest.json" type="Resource" id=19]
+[ext_resource path="res://Level/100_OverlappingEntityTest.json" type="Resource" id=20]
+
+[sub_resource type="Theme" id=1]
+
+[sub_resource type="DynamicFont" id=2]
+size = 225
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=3]
+size = 88
+extra_spacing_char = 3
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=4]
+size = 41
+font_data = ExtResource( 1 )
+
+[sub_resource type="Theme" id=5]
+default_font = SubResource( 4 )
+
+[node name="Level Select" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Title" type="RichTextLabel" parent="."]
+anchor_right = 1.0
+margin_top = 48.0
+margin_bottom = 260.0
+theme = SubResource( 1 )
+custom_fonts/normal_font = SubResource( 2 )
+bbcode_enabled = true
+bbcode_text = "[center]Decrement[/center]"
+text = "Decrement"
+scroll_active = false
+
+[node name="Title2" type="RichTextLabel" parent="."]
+anchor_right = 1.0
+margin_top = 254.0
+margin_bottom = 358.0
+theme = SubResource( 1 )
+custom_fonts/normal_font = SubResource( 3 )
+bbcode_enabled = true
+bbcode_text = "[center]all counters to 0[/center]"
+text = "all counters to 0"
+scroll_active = false
+
+[node name="Button" type="Button" parent="."]
+margin_left = 504.0
+margin_top = 448.0
+margin_right = 952.0
+margin_bottom = 512.0
+theme = SubResource( 5 )
+text = "One"
+script = ExtResource( 3 )
+Level = ExtResource( 4 )
+
+[node name="Button16" type="Button" parent="."]
+margin_left = 56.0
+margin_top = 608.0
+margin_right = 507.0
+margin_bottom = 672.0
+rect_rotation = -61.9553
+theme = SubResource( 5 )
+text = "Entity Animation Priority Test"
+script = ExtResource( 3 )
+Level = ExtResource( 19 )
+
+[node name="Button17" type="Button" parent="."]
+margin_left = 120.0
+margin_top = 640.0
+margin_right = 571.0
+margin_bottom = 704.0
+rect_rotation = -61.9553
+theme = SubResource( 5 )
+text = "Overlapping Entity Test"
+script = ExtResource( 3 )
+Level = ExtResource( 20 )
+
+[node name="Button2" type="Button" parent="."]
+margin_left = 952.0
+margin_top = 448.0
+margin_right = 1400.0
+margin_bottom = 512.0
+theme = SubResource( 5 )
+text = "Field of Numbers"
+script = ExtResource( 3 )
+Level = ExtResource( 5 )
+
+[node name="Button3" type="Button" parent="."]
+margin_left = 504.0
+margin_top = 520.0
+margin_right = 952.0
+margin_bottom = 584.0
+theme = SubResource( 5 )
+text = "Obligatory Push Block"
+script = ExtResource( 3 )
+Level = ExtResource( 7 )
+
+[node name="Button5" type="Button" parent="."]
+margin_left = 280.0
+margin_top = 592.0
+margin_right = 728.0
+margin_bottom = 656.0
+theme = SubResource( 5 )
+text = "Uh oh, Baddies!"
+script = ExtResource( 3 )
+Level = ExtResource( 8 )
+
+[node name="Button6" type="Button" parent="."]
+margin_left = 728.0
+margin_top = 592.0
+margin_right = 1176.0
+margin_bottom = 656.0
+theme = SubResource( 5 )
+text = "March of the Baddies"
+script = ExtResource( 3 )
+Level = ExtResource( 9 )
+
+[node name="Button7" type="Button" parent="."]
+margin_left = 1176.0
+margin_top = 592.0
+margin_right = 1624.0
+margin_bottom = 656.0
+theme = SubResource( 5 )
+text = "Caged Baddies"
+script = ExtResource( 3 )
+Level = ExtResource( 10 )
+
+[node name="Button13" type="Button" parent="."]
+margin_left = 288.0
+margin_top = 872.0
+margin_right = 736.0
+margin_bottom = 936.0
+theme = SubResource( 5 )
+text = "A Greed-Eyed Monster"
+script = ExtResource( 3 )
+Level = ExtResource( 18 )
+
+[node name="Button14" type="Button" parent="."]
+margin_left = 736.0
+margin_top = 872.0
+margin_right = 1184.0
+margin_bottom = 936.0
+theme = SubResource( 5 )
+text = "Collect the Coins?"
+script = ExtResource( 3 )
+Level = ExtResource( 16 )
+
+[node name="Button15" type="Button" parent="."]
+margin_left = 1184.0
+margin_top = 872.0
+margin_right = 1632.0
+margin_bottom = 936.0
+theme = SubResource( 5 )
+text = "Pushy Command Center"
+script = ExtResource( 3 )
+Level = ExtResource( 17 )
+
+[node name="Button8" type="Button" parent="."]
+margin_left = 728.0
+margin_top = 656.0
+margin_right = 1176.0
+margin_bottom = 720.0
+theme = SubResource( 5 )
+text = "March to Your Doom"
+script = ExtResource( 3 )
+Level = ExtResource( 11 )
+
+[node name="Button4" type="Button" parent="."]
+margin_left = 952.0
+margin_top = 520.0
+margin_right = 1400.0
+margin_bottom = 584.0
+theme = SubResource( 5 )
+text = "1, 2, 3, ...13?"
+script = ExtResource( 3 )
+Level = ExtResource( 6 )
+
+[node name="Button9" type="Button" parent="."]
+margin_left = 504.0
+margin_top = 728.0
+margin_right = 952.0
+margin_bottom = 792.0
+theme = SubResource( 5 )
+text = "Spike Central"
+script = ExtResource( 3 )
+Level = ExtResource( 12 )
+
+[node name="Button10" type="Button" parent="."]
+margin_left = 952.0
+margin_top = 728.0
+margin_right = 1400.0
+margin_bottom = 792.0
+theme = SubResource( 5 )
+text = "Forbidden Area 31"
+script = ExtResource( 3 )
+Level = ExtResource( 13 )
+
+[node name="Button11" type="Button" parent="."]
+margin_left = 504.0
+margin_top = 800.0
+margin_right = 952.0
+margin_bottom = 864.0
+theme = SubResource( 5 )
+text = "Doing the Wave"
+script = ExtResource( 3 )
+Level = ExtResource( 15 )
+
+[node name="Button12" type="Button" parent="."]
+margin_left = 952.0
+margin_top = 800.0
+margin_right = 1400.0
+margin_bottom = 864.0
+theme = SubResource( 5 )
+text = "Just 8 Tricky Decrements"
+script = ExtResource( 3 )
+Level = ExtResource( 14 )

@@ -6,10 +6,7 @@ using System.Collections.Generic;
 [Tool]
 public class Maker : Node2D
 {
-    TileMap _floorOutline;
-    TileMap _floor;
-    TileMap _wallOutline;
-    TileMap _wall;
+    TileMap _tileMap;
 
     bool _save = false;
     [Export]
@@ -42,18 +39,12 @@ public class Maker : Node2D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        _floorOutline = GetNode<TileMap>("%TileMapFloorOutline");
-        _floor = GetNode<TileMap>("%TileMapFloor");
-        _wallOutline = GetNode<TileMap>("%TileMapWallOutline");
-        _wall = GetNode<TileMap>("%TileMapWall");
+        _tileMap = GetNode<TileMap>("%TileMap");
     }
 
     void ClearLevel()
     {
-        _floorOutline.Clear();
-        _floor.Clear();
-        _wallOutline.Clear();
-        _wall.Clear();
+        _tileMap.Clear();
     }
 
     void LoadLevel(LevelFile level)
@@ -89,8 +80,7 @@ public class Maker : Node2D
 
     Rect2I Bounds()
     {
-        var cells = _floor.GetUsedCells().Cast<Vector2>()
-            .Concat(_wall.GetUsedCells().Cast<Vector2>())
+        var cells = _tileMap.GetUsedCells().Cast<Vector2>()
             .Select(x => (Vector2I)x)
             .ToList();
 
@@ -103,41 +93,25 @@ public class Maker : Node2D
 
     LevelFile SaveLevel()
     {
-        var bounds = Bounds();
-        var entities = GetChildren().Cast<Node>().Where(n => n is EntityNode2D).Select(n => (EntityNode2D)n).ToList();
+        try {
+            var bounds = Bounds();
+            var entities = GetChildren().Cast<Node>().Where(n => n is EntityNode2D).Select(n => (EntityNode2D)n).ToList();
 
-        return new LevelFile {
-            Name = LevelName,
-            Base = new Vector3I(bounds.Position.x, bounds.Position.y, Level.MinZ),
-            Size = new Vector3I(bounds.Size.x, bounds.Size.y, Level.SizeZ),
-            Map = Enumerable.Range(Level.MinZ, Level.SizeZ).SelectMany(z =>
-                Enumerable.Range(bounds.Position.y, bounds.Size.y).SelectMany(y =>
-                    Enumerable.Range(bounds.Position.x, bounds.Size.x).Select(x =>
-                        z > 0
-                            ? _wall.GetCell(x, y) != TileMap.InvalidCell ? 1 : 0
-                            : _wall.GetCell(x, y) != TileMap.InvalidCell ||
-                                _floor.GetCell(x, y) != TileMap.InvalidCell ? 1 : 0 
-                ))).ToList(),
-            Entities = entities.Select(e => e.LevelEntityFile()).ToList()
-        };
-    }
-
-    void UpdateTileOutlines(TileMap map, TileMap outline)
-    {
-        var mapCells = map.GetUsedCells().Cast<Vector2>().Select(x => (Vector2I)x).ToHashSet();
-        var outlineCells = outline.GetUsedCells().Cast<Vector2>().Select(x => (Vector2I)x).ToHashSet();
-        var added = mapCells.Where(x => !outlineCells.Contains(x)).ToList();
-        var removed = outlineCells.Where(x => !mapCells.Contains(x)).ToList();
-        foreach (var cell in added)
-            outline.SetCell(cell.x, cell.y, 0);
-        foreach (var cell in removed)
-            outline.SetCell(cell.x, cell.y, -1);
-    }
-
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(float delta)
-    {
-        UpdateTileOutlines(_wall, _wallOutline);
-        UpdateTileOutlines(_floor, _floorOutline);
+            return new LevelFile {
+                Name = LevelName,
+                Base = new Vector3I(bounds.Position.x, bounds.Position.y, Level.MinZ),
+                Size = new Vector3I(bounds.Size.x, bounds.Size.y, Level.SizeZ),
+                Map = Enumerable.Range(Level.MinZ, Level.SizeZ).SelectMany(z =>
+                    Enumerable.Range(bounds.Position.y, bounds.Size.y).SelectMany(y =>
+                        Enumerable.Range(bounds.Position.x, bounds.Size.x).Select(x =>
+                            z <= _tileMap.GetCell(x, y) ? 1 : 0
+                    ))).ToList(),
+                Entities = entities.Select(e => e.LevelEntityFile()).ToList()
+            };
+        } catch (Exception e) {
+            GD.PrintErr(e.Message);
+            GD.PrintErr(e.StackTrace);
+            return null;
+        }
     }
 }

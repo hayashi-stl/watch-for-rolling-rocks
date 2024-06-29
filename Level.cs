@@ -6,7 +6,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using PR = Level.PushRelation;
 
-[Tool]
 public partial class Level : Node2D
 {
     [Export]
@@ -25,8 +24,6 @@ public partial class Level : Node2D
         public bool HasFixedBlock() => entities.Values.Any(ent => ent.IsFixed());
 
         public bool HasBlock(Vector3I dir) => entities.Values.Any(ent => ent.IsBlock(dir));
-
-        public bool HasCounter() => entities.Values.Any(ent => ent.HasCounter);
 
         // Blocks that have a node. Returns Array[Entity]
         public IEnumerable<Entity> NodeBlocks(Vector3I dir) {
@@ -98,21 +95,6 @@ public partial class Level : Node2D
         
         public override Action Do(Level level) {
             return level.RotateEntity(level._entriesById[_entityId], _dest, false);
-        }
-    }
-            
-    // A counter changed value
-    public class CountAction : Action {
-        int _entityId;
-        int? _value;
-        
-        public CountAction(Entity entity, int? value) {
-            _entityId = entity.Id;
-            _value = value;
-        }
-        
-        public override Action Do(Level level) {
-            return level.SetEntityCounter(level._entriesById[_entityId], _value, false);
         }
     }
             
@@ -251,40 +233,6 @@ public partial class Level : Node2D
         }
     }
 
-    class TweenEntityCounterEntry : TweenEntry {
-        Entity _entity;
-        int? _counter;
-        public override string Key => $"EntityCounter {_entity.Id}";
-        public override Entity ActingEntity => _entity;
-
-        public TweenEntityCounterEntry(Entity entity, int? counter) {
-            _entity = entity;
-            _counter = counter;
-        }
-
-        public override IEnumerable<SceneTreeTween> Execute(Level level, float delay) {
-            return _entity.TweenCounter(_counter, delay);
-        }
-    }
-
-    class TweenEntityCounterPositionEntry : TweenEntry {
-        Entity _entity;
-        Vector2 _position;
-        float _scale;
-        public override string Key => $"EntityCounterPosition {_entity.Id}";
-        public override Entity ActingEntity => null; // This is a visual effect and can't cause conflicts
-
-        public TweenEntityCounterPositionEntry(Entity entity, Vector2 position, float scale) {
-            _entity = entity;
-            _position = position;
-            _scale = scale;
-        }
-
-        public override IEnumerable<SceneTreeTween> Execute(Level level, float delay) {
-            return _entity.TweenCounterPosition(_position, _scale, delay);
-        }
-    }
-
     class TweenEntityExistenceEntry : TweenEntry {
         Entity _entity;
         bool _exists;
@@ -316,22 +264,6 @@ public partial class Level : Node2D
 
         public override IEnumerable<SceneTreeTween> Execute(Level level, float delay) {
             return _entity.TweenSquish(_direction, delay);
-        }
-    }
-
-    class TweenTimesEntry : TweenEntry {
-        Times _times;
-        bool _exists;
-        public override string Key => $"Times {_times.GetInstanceId()}";
-        public override Entity ActingEntity => null;
-
-        public TweenTimesEntry(Times times, bool exists) {
-            _times = times;
-            _exists = exists;
-        }
-
-        public override IEnumerable<SceneTreeTween> Execute(Level level, float delay) {
-            return _times.TweenExistence(_exists, delay);
         }
     }
 
@@ -546,7 +478,6 @@ public partial class Level : Node2D
     readonly List<PuzzleInput> _inputs = new List<PuzzleInput>();
     Entry _pitEntry;
     readonly HashSet<Entity> _movedInStep = new HashSet<Entity>();
-    readonly Dictionary<Vector2I, Times> _currTimes = new Dictionary<Vector2I, Times>();
     readonly TweenGrouping _tweenGrouping = new TweenGrouping();
     float _shakeMagnitude = 0.0f;
 
@@ -602,15 +533,15 @@ public partial class Level : Node2D
                 ent.Kill(tween);
                 if (tween) {
                     _tweenGrouping.AddTween(new TweenEntityExistenceEntry(ent, false, DefeatParams.Punch.KillDelay));
-                    SpawnParticleEffect(Global.ParticleEffect.BaddyPoof, ent.Position, Vector3I.Up, DefeatParams.Punch.KillDelay);
-                    _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, DefeatParams.Punch.KillDelay));
+                    //SpawnParticleEffect(Global.ParticleEffect.BaddyPoof, ent.Position, Vector3I.Up, DefeatParams.Punch.KillDelay);
+                    //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, DefeatParams.Punch.KillDelay));
                 }
                 break;
             case DefeatParams.Squish p:
                 var dir = ent.Squish(p.Direction, tween);
                 if (tween) {
                     _tweenGrouping.AddTween(new TweenEntitySquishEntry(ent, dir));
-                    _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Squish, 0));
+                    //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Squish, 0));
                 }
                 break;
         };
@@ -646,16 +577,6 @@ public partial class Level : Node2D
     }
 
     void RotateEntityUndoable(Entity ent, Vector3I new_dir) => _undoStack.Add(RotateEntity(ent, new_dir));
-
-    CountAction SetEntityCounter(Entity ent, int? new_value, bool tween = true) {
-        var old_value = ent.CounterValue;
-        var value = ent.SetCounterValue(new_value, tween);
-        if (tween)
-            _tweenGrouping.AddTween(new TweenEntityCounterEntry(ent, value));
-        return new CountAction(ent, old_value);
-    }
-
-    void SetEntityCounterUndoable(Entity ent, int? new_value) => _undoStack.Add(SetEntityCounter(ent, new_value));
 
     void SpawnParticleEffect(PackedScene effectScene, Vector3I position, Vector3I direction, float delay) {
         var effect = effectScene.Instance<ParticleEffect>();
@@ -694,9 +615,10 @@ public partial class Level : Node2D
             
         for (int i = 0; i < Entity.NumTypes; ++i)
             _entriesByType.Add(new Entry());
+
+        var tileMap = GetNode<TileMap>("%TileMap");
             
         // Fill entries from the grid map
-        var grid = new List<int>(Enumerable.Repeat(MeshTilemap.Invalid, _sizeX * _sizeY * SizeZ));
         for (int z = MinZ; z < MinZ + SizeZ; ++z)
             for (int y = _minY; y < _minY + _sizeY; ++y)
                 for (int x = _minX; x < _minX + _sizeX; ++x) {
@@ -705,24 +627,11 @@ public partial class Level : Node2D
                     var cellIndex = (mapPosition.z * _levelFile.Size.y + mapPosition.y) * _levelFile.Size.x + mapPosition.x;
                     var lowerCellIndex = ((mapPosition.z - 1) * _levelFile.Size.y + mapPosition.y) * _levelFile.Size.x + mapPosition.x;
                     if (_levelFile.Map[cellIndex] != 0) {
-                        grid[cellIndex] = z == 0 ? 0 : 1;
-                        if (lowerCellIndex >= 0)
-                            grid[lowerCellIndex] = -1;
-
+                        tileMap.SetCell(x, y, z == 0 ? 0 : 1);
                         var ent = new Entity.Fixed(Global.Instance(this).NextEntityID(), cellPosition);
                         AddEntity(ent, cellPosition);
                     }
                 }
-
-        var tilemap = Global.Scene.MeshTilemap.Instance<MeshTilemap>();
-        tilemap.Tiles = new List<(MeshInstance2D, MeshInstance2D)>() {
-            (Global.Tileset.Plain.Outline.Instance<MeshInstance2D>(), Global.Tileset.Plain.Floor.Instance<MeshInstance2D>()),
-            (Global.Tileset.Plain.Outline.Instance<MeshInstance2D>(), Global.Tileset.Plain.Wall.Instance<MeshInstance2D>()),
-        };
-        tilemap.Dimensions = _levelFile.Size;
-        tilemap.Grid = grid;
-        AddChild(tilemap);
-        tilemap.Position = (Vector2)_levelFile.Base.XY * Util.TileSize + Vector2.One * (Util.TileSize / 2);
 
         LoadInEntities(false);
     }
@@ -812,15 +721,15 @@ public partial class Level : Node2D
 
         graph.MarkMovability();
         var (Moving, Squished) = graph.MovingSquishedEntities(ent);
-        if (Moving.Contains(ent))
-            SpawnParticleEffect(Global.ParticleEffect.Dash, ent.Position, ent.Direction, 0);
+        //if (Moving.Contains(ent))
+        //    SpawnParticleEffect(Global.ParticleEffect.Dash, ent.Position, ent.Direction, 0);
         if (!gravity) {
-            if (Moving.Any())
-                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Move, 0));
-            else if (doBumpEffect) {
+            if (Moving.Any()) {
+            //    _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Move, 0));
+            } else if (doBumpEffect) {
                 foreach (var entity in graph.BumpingEntities(ent))
                     _tweenGrouping.AddTween(new TweenEntityBumpPositionEntry(entity, (Vector2)dir.XY * Util.TileSize));
-                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Bump, 0));
+                //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Bump, 0));
             }
         }
         foreach (var e in Moving)
@@ -831,12 +740,8 @@ public partial class Level : Node2D
                 if (e.HandleSquished())
                     DeleteEntityUndoable(e, new DefeatParams.Squish(){ Direction = dir.XY });
         
-        if (!gravity)
-            DecrementOnPushed(Moving);
-        DecrementOnSteppedOn(Moving);
-        HandlePlayerCoinCollision(Moving);
-        HandlePlayerBaddyCollision(Moving);
-        HandleHazardousSurface(Moving);
+        //HandlePlayerBaddyCollision(Moving);
+        //HandleHazardousSurface(Moving);
         return Moving;
     }
 
@@ -862,59 +767,6 @@ public partial class Level : Node2D
         BatchTweens();
     }
         
-    // Coin collected! Keep track in coin counter blocks
-    void OnCoinCollected() {
-        var ccbs = _entriesByType[(int)Entity.EntityType.Block].Filter(
-                b => ((Block.Ent)b).BlockType_() == Block.BlockType.CoinCounter);
-
-        foreach (var ccb in ccbs) {
-            var pos = ccb.Position;
-            foreach (var (x, y) in new List<(int x, int y)>(){ (0, -1), (0, 1), (-1, 0), (1, 0) })
-                for (int pos_z = MinZ; pos_z < MinZ + SizeZ; ++pos_z) {
-                    var nearby = EntryAt(new Vector3I(pos.x + x, pos.y + y, pos_z));
-                    foreach (var ent in nearby.entities.Values) {
-                        if (ent.Alive && ent.HasCounter)
-                            SetEntityCounterUndoable(ent, ent.CounterValue + 1);
-                    }
-                }
-        }
-    }
-
-    // Returns an array of entities that moved.
-    // For now, this is nothing.
-    List<Entity> AttemptPunch(Entity ent, Vector3I dir) {
-        var front_ents = EntryAt(ent.Position + dir).entities.Values.ToList();
-        var blocked = front_ents.Any(e => e.IsBlock(-dir));
-
-        if (ent is Player.Ent player) {
-            player.PlayPunchEffect(blocked);
-            _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.PunchSwing, 0));
-            if (blocked)
-                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Bump, 0.01f));
-        }
-
-        bool baddyPunched = false;
-        foreach (var e in front_ents)
-            if (e.Alive)
-                if (e.Type == Entity.EntityType.Baddy) {
-                    baddyPunched = true;
-                    if (e.HasCounter)
-                        SetEntityCounterUndoable(e, e.CounterValue - 1);
-                    if (!e.HasCounter || e.CounterValue == 0)
-                        DeleteEntityUndoable(e, new DefeatParams.Punch());
-                }
-
-        // TODO: Tween
-        if (baddyPunched) {
-            var tween = CreateTween();
-            tween.TweenInterval(0.025f);
-            tween.TweenProperty(this, "_shakeMagnitude", (float)Util.TileSize / 16, 0.0f);
-            _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Punch, 0.025f));
-        }
-                
-        return new List<Entity>();
-    }
-            
     class PuzzleInput {
         public enum Action {
             Move,
@@ -945,17 +797,12 @@ public partial class Level : Node2D
                         BatchTweens();
                     }
                 }
-                else if (input.Action_ == Level.PuzzleInput.Action.Turn) {
-                    //if (player.Direction != dir)
-                    //    _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Swish, 0));
-                    RotateEntityUndoable(player, dir);
-                    BatchTweens();
-                }
-                    
-                else if (input.Action_ == Level.PuzzleInput.Action.Punch) {
-                    AttemptPunch(player, player.Direction);
-                    BatchTweens();
-                }
+                //else if (input.Action_ == Level.PuzzleInput.Action.Turn) {
+                //    //if (player.Direction != dir)
+                //    //    _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Swish, 0));
+                //    RotateEntityUndoable(player, dir);
+                //    BatchTweens();
+                //}
             }
     }
 
@@ -973,92 +820,40 @@ public partial class Level : Node2D
             }
     }
         
-    // For every entity that moved, decrement what it stepped on.
-    void DecrementOnSteppedOn(IEnumerable<Entity> moved) {
-        foreach (var ent in moved) {
-            if (!ent.Alive || ent.Gravity == Vector3I.Zero)
-                continue;
-            
-            var below = EntryAt(ent.Position + ent.Gravity);
-            foreach (var block in below.NodeBlocks(-ent.Gravity))
-                if (block is Block.Ent ent1 && ent1.CountSteps())
-                    SetEntityCounterUndoable(block, block.CounterValue - 1);
-        }
-    }
-                    
-    // For every entity that moved that counts it, decrement
-    void DecrementOnPushed(IEnumerable<Entity> moved) {
-        foreach (var ent in moved) {
-            if (!ent.Alive || ent.Type != Entity.EntityType.Block || !((Block.Ent)ent).CountPushes())
-                continue;
-            SetEntityCounterUndoable(ent, ent.CounterValue - 1);
-        }
-    }
+    //void HandleHazardousSurface(IEnumerable<Entity> moved) {
+    //    foreach (var ent in moved) {
+    //        if (!ent.Alive || ent.Type != Entity.EntityType.Player)
+    //            continue;
+    //        var below = EntryAt(ent.Position + ent.Gravity);
+    //        foreach (var block in below.NodeBlocks(-ent.Gravity))
+    //            if (block is Block.Ent ent1 && ent1.BlockType_() == Block.BlockType.Spikes) {
+    //                DeleteEntityUndoable(ent);
+    //                SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
+    //                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
+    //                break;
+    //            }
+    //    }
+    //}
         
-    void HandleHazardousSurface(IEnumerable<Entity> moved) {
-        foreach (var ent in moved) {
-            if (!ent.Alive || ent.Type != Entity.EntityType.Player)
-                continue;
-            var below = EntryAt(ent.Position + ent.Gravity);
-            foreach (var block in below.NodeBlocks(-ent.Gravity))
-                if (block is Block.Ent ent1 && ent1.BlockType_() == Block.BlockType.Spikes) {
-                    DeleteEntityUndoable(ent);
-                    SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
-                    _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
-                    break;
-                }
-        }
-    }
-        
-    // For every player or coin that moved, handle collision
-    void HandlePlayerCoinCollision(IEnumerable<Entity> moved) {
-        var num_coins = 0;
-        
-        foreach (var ent in moved) {
-            if (!ent.Alive ||
-                    (ent.Type != Entity.EntityType.Player && ent.Type != Entity.EntityType.Coin))
-                continue;
-            var otherType = ent.Type == Entity.EntityType.Player ? Entity.EntityType.Coin : Entity.EntityType.Player;
-            var others = EntryAt(ent.Position).entities.Values.ToList();
-            foreach (var other in others) {
-                if (ent.Alive && other.Alive && other.Type == otherType) {
-                    var player = otherType == Entity.EntityType.Player ? other : ent;
-                    var coin = otherType == Entity.EntityType.Player ? ent : other;
-                    if (coin.HasCounter)
-                        SetEntityCounterUndoable(coin, coin.CounterValue - 1);
-                    if (!coin.HasCounter || coin.CounterValue == 0) {
-                        SpawnParticleEffect(Global.ParticleEffect.CoinSparkles, coin.Position, coin.Direction, 0);
-                        _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.CoinCollect, Entity.TweenTime));
-                        DeleteEntityUndoable(coin);
-                    }
-                    num_coins += 1;
-                }
-            }
-        }
-                    
-        for (int x = 0; x < num_coins; ++x)
-            OnCoinCollected();
-    }
-
-    // For every player or baddy that moved, handle collision
-    void HandlePlayerBaddyCollision(IEnumerable<Entity> moved) {
-        foreach (var ent in moved) {
-            if (!ent.Alive ||
-                    (ent.Type != Entity.EntityType.Player && ent.Type != Entity.EntityType.Baddy))
-                continue;
-            var otherType = ent.Type == Entity.EntityType.Player ? Entity.EntityType.Baddy : Entity.EntityType.Player;
-            var others = EntryAt(ent.Position).entities.Values.ToList();
-            foreach (var other in others) {
-                if (ent.Alive && other.Alive && other.Type == otherType) {
-                    var player = otherType == Entity.EntityType.Player ? other : ent;
-                    var baddy = otherType == Entity.EntityType.Player ? ent : other;
-                    SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
-                    _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
-                    DeleteEntityUndoable(player);
-                }
-            }
-        }
-    }
+    //// For every player or baddy that moved, handle collision
+    //void HandlePlayerBaddyCollision(IEnumerable<Entity> moved) {
+    //    foreach (var ent in moved) {
+    //        if (!ent.Alive ||
+    //                (ent.Type != Entity.EntityType.Player && ent.Type != Entity.EntityType.Baddy))
+    //            continue;
+    //        var otherType = ent.Type == Entity.EntityType.Player ? Entity.EntityType.Baddy : Entity.EntityType.Player;
+    //        var others = EntryAt(ent.Position).entities.Values.ToList();
+    //        foreach (var other in others) {
+    //            if (ent.Alive && other.Alive && other.Type == otherType) {
+    //                var player = otherType == Entity.EntityType.Player ? other : ent;
+    //                var baddy = otherType == Entity.EntityType.Player ? ent : other;
+    //                SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
+    //                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
+    //                DeleteEntityUndoable(player);
+    //            }
+    //        }
+    //    }
+    //}
 
     readonly List<(float, List<Vector2>)> _overlappingEntityOffsets = new List<(float, List<(double, double)>)>() {
         (1.0f,  new List<(double, double)>(){ (0.0, 0.0) }),
@@ -1101,50 +896,6 @@ public partial class Level : Node2D
                     _tweenGrouping.AddTween(new TweenEntityOffsetPositionEntry(ent, Pos, Scale));
             }
         }
-
-        // Separate floor counters from wall counters
-        Vector2 floorCounterPos = wallEntities.Count > 0 ? Vector2.One * -0.3f : Vector2.Zero;
-        float scale = wallEntities.Count > 0 ? 0.8f : 1.0f;
-        foreach (var ent in floorEntities.Where(f => f.Type != Entity.EntityType.Fixed)) {
-            var (Changed, Pos, Scale) = ent.SetCounterPosition(floorCounterPos, scale, tween);
-            if (tween && Changed)
-                _tweenGrouping.AddTween(new TweenEntityCounterPositionEntry(ent, Pos, Scale));
-        }
-    }
-
-    void AdjustTimesEffects(bool tween) {
-        var timesPositions = new List<Vector2I>();
-
-        foreach (var ccb in _entriesByType[(int)Entity.EntityType.Block].entities.Values
-            .Where(e => e is Block.Ent b && b.BlockType_() == Block.BlockType.CoinCounter))
-        {
-            foreach (var (x, y) in new List<(int x, int y)>(){ (0, -1), (0, 1), (-1, 0), (1, 0) }) {
-                var other = EntryAt(new Vector3I(ccb.Position.x + x, ccb.Position.y + y, 0)).entities.Values
-                    .Concat(EntryAt(new Vector3I(ccb.Position.x + x, ccb.Position.y + y, 1)).entities.Values)
-                    .Where(e => e.HasCounter);
-                if (other.Any()) {
-                    timesPositions.Add(new Vector2I(ccb.Position.x * 2 + 1 + x, ccb.Position.y * 2 + 1 + y));
-                }
-            }
-        }
-
-        var timesPosSet = timesPositions.ToHashSet();
-        foreach (var timesPos in _currTimes.Keys.Where(k => !timesPosSet.Contains(k)).ToList()) {
-            if (tween)
-                _tweenGrouping.AddTween(new TweenTimesEntry(_currTimes[timesPos], false));
-            else
-                _currTimes[timesPos].QueueFree();
-            _currTimes.Remove(timesPos);
-        }
-        foreach (var timesPos in timesPosSet.Where(k => !_currTimes.ContainsKey(k))) {
-            var times = Global.Scene.Times.Instance<Times>();
-            times.TweenIn = tween;
-            AddChild(times);
-            times.Position = (Vector2)timesPos / 2 * Util.TileSize;
-            _currTimes[timesPos] = times;
-            if (tween)
-                _tweenGrouping.AddTween(new TweenTimesEntry(_currTimes[timesPos], true));
-        }
     }
 
     void AdjustVisualEffects(bool tween) {
@@ -1155,8 +906,6 @@ public partial class Level : Node2D
         {
             AdjustEntityPositions(pos, tween);
         }
-
-        AdjustTimesEffects(tween);
     }
 
     void BatchTweens() {
@@ -1264,10 +1013,7 @@ public partial class Level : Node2D
         if (!_clear)
             foreach (var input in _inputs) {
                 Step(input);
-                if (Enumerable.Range(0, Entity.NumTypes)
-                    .Where(i => i != (int)Entity.EntityType.Fixed)
-                    .SelectMany(i => _entriesByType[i].entities.Values)
-                    .All(e => e.CounterValue == null || e.CounterValue == 0))
+                if (false)
                 {
                     _clear = true;
                     LevelStage.SetLevelClear(true);

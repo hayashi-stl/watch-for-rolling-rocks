@@ -36,7 +36,6 @@ public class Entity
                 Position = ent.Position,
                 Direction = ent.Direction,
                 Gravity = ent.Gravity,
-                CounterValue = ent.CounterValue,
                 CustomData = customData
             };
         }
@@ -90,9 +89,6 @@ public class Entity
     public EntityType Type { get; set; } // determines movement pattern and priority
     Vector3I _pos; // true position of the entity, as opposed to visual position
     Vector3I _dir; // direction teh entity is facing. Must be a cardinal direction.
-    int? _counter; // value of the entity's counter
-    Vector2 _counterPos;
-    float _counterScale;
     Vector2 _offsetPos;
     float _offsetScale;
 	bool _alive = true;
@@ -124,8 +120,6 @@ public class Entity
 
     // The direction the entity is facing.
     public Vector3I Direction => _dir;
-
-    public int? CounterValue => _counter;
 
     public String Debug() => $"{Type}: at {Position}, dir {Direction}";
 
@@ -256,7 +250,6 @@ public class Entity
         public Fixed(int id, Vector3I position) : base(id, EntityType.Fixed) {
             _pos = position;
             _dir = Vector3I.Zero;
-            _counter = null;
         }
             
         public override bool IsFixed() => true;
