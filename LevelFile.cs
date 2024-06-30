@@ -17,12 +17,17 @@ public class LevelFile
             return JsonSubtypesConverterBuilder
                 .Of<EntityCustomData>("$Type")
                 .RegisterSubtype<PlayerFile>("Player")
+                .RegisterSubtype<RockFile>("Rock")
                 .SerializeDiscriminatorProperty()
                 .Build();
         }
     }
 
     public class PlayerFile : EntityCustomData {}
+    public class RockFile : EntityCustomData {
+        [JsonConverter(typeof(StringEnumConverter))]
+        public Rock.RockType Type { get; set; }
+    }
 
     public class EntityFile
     {

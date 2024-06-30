@@ -84,6 +84,8 @@ public abstract partial class EntityNode2D : Node2D, IEntityNode {
         }
     }
 
+    public virtual Vector2I Size() => Vector2I.One;
+
     void CalcPositionAndScale() {
         Position = BasePosition + OffsetPosition + BumpOffsetPosition;
         Scale = BaseScale * OffsetScale * Vector2.One;
@@ -128,7 +130,7 @@ public abstract partial class EntityNode2D : Node2D, IEntityNode {
     public LevelFile.EntityFile LevelEntityFile() {
         var rotated = (Vector2I)Vector2.Down.Rotated(Rotation).Round();
         var entityFile = new LevelFile.EntityFile {
-            Position = Util.ToTileSpace(Position, ZIndex),
+            Position = Util.ToTileSpace(Position, ZIndex, Size()),
             Direction = new Vector3I(rotated.x, rotated.y, 0),
             Gravity = Vector3I.Forward,
             CustomData = LevelEntityCustomParams()

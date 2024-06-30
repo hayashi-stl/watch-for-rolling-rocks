@@ -97,6 +97,23 @@ public partial class Level : Node2D
             return level.RotateEntity(level._entriesById[_entityId], _dest, false);
         }
     }
+
+    // An entity was edited.
+    public class EditAction : Action {
+        int _entityId;
+        Action<Entity> _forward;
+        Action<Entity> _inverse;
+
+        public EditAction(Entity entity, Action<Entity> forward, Action<Entity> inverse) {
+            _entityId = entity.Id;
+            _forward = forward;
+            _inverse = inverse;
+        }
+
+        public override Action Do(Level level) {
+            return level.EditEntity(level._entriesById[_entityId], _forward, _inverse);
+        }
+    }
             
     class BatchAction : Action {
         public enum Tag {
@@ -502,6 +519,17 @@ public partial class Level : Node2D
              ? _entries[((pos.z - MinZ) * _sizeY + (pos.y - _minY)) * _sizeX + (pos.x - _minX)]
              : pos.z < 0 ? _pitEntry : DefaultEntry(pos);
     }
+
+    // Looks for the first entry with stuff in it, starting from `start`
+    // and adding `dir` each time.
+    Entry Raycast(Vector3I start, Vector3I dir) {
+        while (true) {
+            var result = EntryAt(start);
+            if (result.entities.Any())
+                return result;
+            start += dir;
+        }
+    }
         
     public DeleteAction AddEntity(Entity ent, Vector3I pos, bool tween = true) {
         EntryAt(pos).Add(ent);
@@ -575,6 +603,19 @@ public partial class Level : Node2D
     }
 
     void RotateEntityUndoable(Entity ent, Vector3I new_dir) => _undoStack.Add(RotateEntity(ent, new_dir));
+
+    EditAction EditEntity(Entity ent, Action<Entity> forward, Action<Entity> inverse) {
+        forward(ent);
+        return new EditAction(ent, inverse, forward);
+    }
+
+    EditAction EditTypedEntity<T>(T ent, Action<T> forward, Action<T> inverse) where T: Entity {
+        forward(ent);
+        return new EditAction(ent, (e) => inverse((T)e), (e) => forward((T)e));
+    }
+
+    void EditTypedEntityUndoable<T>(T ent, Action<T> forward, Action<T> inverse) where T: Entity =>
+        _undoStack.Add(EditTypedEntity(ent, forward, inverse));
 
     void SpawnParticleEffect(PackedScene effectScene, Vector3I position, Vector3I direction, float delay) {
         var effect = effectScene.Instance<ParticleEffect>();
@@ -775,7 +816,7 @@ public partial class Level : Node2D
     }
         
     // Sorts an array of entities in place by priority.
-    void PrioritySort(List<Entity> entities) {
+    void PrioritySort<T>(List<T> entities) where T: Entity {
         entities.Sort((a, b) => Util.SequenceCompare(a.MovePriority(), b.MovePriority()));
     }
 
@@ -802,19 +843,6 @@ public partial class Level : Node2D
             }
     }
 
-    void MoveBaddies() {
-        var baddies = _entriesByType[(int)Entity.EntityType.Baddy].entities.Values.ToList();
-        PrioritySort(baddies);
-        foreach (var baddy in baddies)
-            if (baddy.Alive) {
-                var result = AttemptMove(baddy, baddy.Direction, false, false, false);
-                if (baddy.Alive && result.Count == 0) {
-                    RotateEntityUndoable(baddy, -baddy.Direction);
-                    //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Swish, 0));
-                }
-                BatchTweens();
-            }
-    }
         
     //void HandleHazardousSurface(IEnumerable<Entity> moved) {
     //    foreach (var ent in moved) {
@@ -921,7 +949,7 @@ public partial class Level : Node2D
         _movedInStep.Clear();
         
         MovePlayers(input);
-        MoveBaddies();
+        MoveRocks();
         HandleGravity();
                     
         // This is just for display

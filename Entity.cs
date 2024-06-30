@@ -8,7 +8,7 @@ public class Entity
     public enum EntityType {
         Fixed,
         Player,
-        Baddy,
+        Rock,
         Block,
         Coin,
     }
@@ -44,6 +44,7 @@ public class Entity
             return File.CustomData switch
             {
                 LevelFile.PlayerFile file => Player.SpawnNode(file),
+                LevelFile.RockFile file => Rock.SpawnNode(file),
                 _ => throw new ArgumentException($"{File.CustomData} is invalid")
             };
         }
@@ -69,7 +70,7 @@ public class Entity
             maker.AddChild(node);
             node.Owner = node.GetTree().EditedSceneRoot;
 
-            var (XY, ZIndex) = Util.FromTileSpace(File.Position);
+            var (XY, ZIndex) = Util.FromTileSpace(File.Position, node.Size());
             node.BasePosition = XY;
             node.ZIndex = ZIndex;
 
@@ -98,6 +99,8 @@ public class Entity
         Id = id;
         Type = type;
     }
+
+    public virtual Vector2I Size() => EntityNode.Size();
 
     // Whether the entity is a fixed block. It can't even be moved by gravity.
     public virtual bool IsFixed() => false;
@@ -144,7 +147,7 @@ public class Entity
     // Returns the value to use for tweening
     public virtual (Vector2 Pos, float Scale) SetPosition(Vector3I pos, bool tween) {
         _pos = pos;
-        var newPos = Util.FromTileSpace(pos);
+        var newPos = Util.FromTileSpace(pos, Size());
         var scale = pos.z > 0 ? EntityNode.WallLayerScale : 1.0f;
         if (!tween) {
             EntityNode.BasePosition = newPos.XY;

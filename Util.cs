@@ -8,12 +8,12 @@ public partial class Util : Node
     public const int TileSize = 64;
     public const int ZIndexGap = 50;
 
-    public static (Vector2 XY, int ZIndex) FromTileSpace(Vector3I pos) {
-        return ((new Vector2(pos.x, pos.y) + Vector2.One / 2) * TileSize, pos.z * ZIndexGap);
+    public static (Vector2 XY, int ZIndex) FromTileSpace(Vector3I pos, Vector2I Size) {
+        return ((new Vector2(pos.x, pos.y) + (Vector2)Size / 2) * TileSize, pos.z * ZIndexGap);
     }
 
-    public static Vector3I ToTileSpace(Vector2 XY, int ZIndex) {
-        var posXY = (Vector2I)(XY / TileSize);
+    public static Vector3I ToTileSpace(Vector2 XY, int ZIndex, Vector2I Size) {
+        var posXY = (Vector2I)(XY / TileSize - (Vector2)Size / 2);
         return new Vector3I(posXY.x, posXY.y, ZIndex / ZIndexGap);
     }
 
@@ -33,6 +33,11 @@ public partial class Util : Node
             _ => throw new ArgumentOutOfRangeException($"{dir} is not a direction."),
         };
     }
+
+    public static readonly Vector3I DirRight = Vector3I.Right;
+    public static readonly Vector3I DirUp = Vector3I.Down;
+    public static readonly Vector3I DirLeft = Vector3I.Left;
+    public static readonly Vector3I DirDown = Vector3I.Up;
 
     public static Viewport Root(Node node) {
         return node.GetNode<Viewport>("/root");

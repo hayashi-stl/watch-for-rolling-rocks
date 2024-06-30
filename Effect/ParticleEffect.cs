@@ -14,7 +14,7 @@ public class ParticleEffect : Node2D
 
     public IEnumerable<SceneTreeTween> TweenEffect(Vector3I tilePosition, Vector3I direction, float delay)
     {
-        var (XY, Z) = Util.FromTileSpace(tilePosition);
+        var (XY, Z) = Util.FromTileSpace(tilePosition, Vector2I.One);
         Position = XY;
         ZIndex += Z;
         Rotation = Vector2.Down.AngleTo((Vector2)direction.XY);
