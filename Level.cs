@@ -532,7 +532,9 @@ public partial class Level : Node2D
     }
         
     public DeleteAction AddEntity(Entity ent, Vector3I pos, bool tween = true) {
-        EntryAt(pos).Add(ent);
+        for (int y = 0; y < ent.Size().y; ++y)
+            for (int x = 0; x < ent.Size().x; ++x)
+                EntryAt(pos + new Vector3I(x, y, 0)).Add(ent);
         _entriesByType[(int)ent.Type].Add(ent);
         _entriesById[ent.Id] = ent;
         return new DeleteAction(ent);
@@ -545,7 +547,9 @@ public partial class Level : Node2D
 
     AddAction DeleteEntity(Entity ent, DefeatParams param, bool tween = true) {
         var def = ent.Def;
-        EntryAt(ent.Position).Remove(ent);
+        for (int y = 0; y < ent.Size().y; ++y)
+            for (int x = 0; x < ent.Size().x; ++x)
+                EntryAt(ent.Position + new Vector3I(x, y, 0)).Remove(ent);
         _entriesByType[(int)ent.Type].Remove(ent);
         _entriesById.Remove(ent.Id);
 
@@ -583,8 +587,12 @@ public partial class Level : Node2D
     // Not intended for fixed blocks
     MoveAction MoveEntity(Entity ent, Vector3I new_pos, bool tween = true) {
         var old_pos = ent.Position;
-        EntryAt(ent.Position).Remove(ent);
-        EntryAt(new_pos).Add(ent);
+        for (int y = 0; y < ent.Size().y; ++y)
+            for (int x = 0; x < ent.Size().x; ++x)
+                EntryAt(ent.Position + new Vector3I(x, y, 0)).Remove(ent);
+        for (int y = 0; y < ent.Size().y; ++y)
+            for (int x = 0; x < ent.Size().x; ++x)
+                EntryAt(new_pos + new Vector3I(x, y, 0)).Add(ent);
         var (XY, Scale) = ent.SetPosition(new_pos, tween);
         if (tween)
             _tweenGrouping.AddTween(new TweenEntityPositionEntry(ent, XY, Scale));

@@ -255,6 +255,8 @@ public class Entity
             _dir = Vector3I.Zero;
         }
             
+        public override Vector2I Size() => Vector2I.One;
+
         public override bool IsFixed() => true;
         
         public override bool IsBlock(Vector3I dir) => true;

@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
+using Priority_Queue;
 
 [Tool]
 public partial class Rock : EntityNode2D
@@ -99,9 +100,7 @@ public partial class Level : Node2D
         EditTypedEntityUndoable(rock, (r) => r.Moving = moving, (r) => r.Moving = oldValue);
     }
 
-    void MoveRocks() {
-        var rocks = _entriesByType[(int)Entity.EntityType.Rock].entities.Values.Select(e => (Rock.Ent)e).ToList();
-        PrioritySort(rocks);
+    void RocksDetectPlayers(IEnumerable<Rock.Ent> rocks) {
         foreach (var rock in rocks) {
             if (!rock.Moving) {
                 // Detect players
@@ -118,18 +117,84 @@ public partial class Level : Node2D
                 foreach (var (Start, Dir) in rays) {
                     var entries = Raycast(Start, Dir);
                     if (entries.WithType(Entity.EntityType.Player).Any()) {
-                        rock.SetDirection(Dir, false);
+                        RotateEntityUndoable(rock, Dir);
                         SetRockMovingUndoable(rock, true);
                         break;
                     }
                 }
             }
         }
+    }
+
+    IEnumerable<Rock.Ent> RocksThatMoveBack(Vector3I pos) {
+        var entry = EntryAt(pos);
+        var rocks = entry.WithType(Entity.EntityType.Rock).Select(e => (Rock.Ent)e).ToList();
+        if (entry.HasFixedBlock() || rocks.Exists(r => !r.Moving))
+            return rocks.Where(r => r.Moving);
+
+        var rocksToMove = new HashSet<Rock.Ent>();
+        for (int i = 0; i < rocks.Count; ++i)
+            foreach (var other in rocks.Skip(i + 1)) {
+                var rock = rocks[i];
+                // Opposite directions: always move back
+                if (rock.Direction.Dot(other.Direction) < 0) {
+                    rocksToMove.Add(rock);
+                    rocksToMove.Add(other);
+                }
+                // Perpendicular directions: move back if would reach intersection point at same time
+                else if (rock.Direction.Dot(other.Direction) == 0) {
+                    var horzRock = rock.Direction.x == 0 ? other : rock;
+                    var vertRock = rock.Direction.x == 0 ? rock : other;
+                    var intersectPos = new Vector3I(vertRock.Position.x, horzRock.Position.y, pos.z);
+                    var horzDistance = (horzRock.Position - intersectPos).Dot(horzRock.Direction);
+                    var vertDistance = (vertRock.Position - intersectPos).Dot(vertRock.Direction);
+                    if (horzDistance <= vertDistance)
+                        rocksToMove.Add(horzRock);
+                    if (vertDistance <= horzDistance)
+                        rocksToMove.Add(vertRock);
+                }
+            }
+
+        return rocksToMove;
+    }
+
+    void HandleRockCollision(IEnumerable<Rock.Ent> rocks) {
+        var collisionTiles = new SimplePriorityQueue<Vector3I>();
+        foreach (var rock in rocks) {
+            for (int y = 0; y < rock.Size().y; ++y)
+                for (int x = 0; x < rock.Size().x; ++x) {
+                    var pos = rock.Position + new Vector3I(x, y, 0);
+                    collisionTiles.Enqueue(pos, RocksThatMoveBack(pos).Count());
+                }
+        }
+
+        while (collisionTiles.Any()) {
+            var pos = collisionTiles.Dequeue();
+            var rocksToMove = RocksThatMoveBack(pos);
+            foreach (var rock in rocksToMove) {
+                Move(rock, -rock.Direction, false);
+                SetRockMovingUndoable(rock, false);
+
+                for (int y = 0; y < rock.Size().y; ++y)
+                    for (int x = 0; x < rock.Size().x; ++x) {
+                        var dPos = rock.Position + new Vector3I(x, y, 0);
+                        collisionTiles.Enqueue(dPos, RocksThatMoveBack(dPos).Count());
+                    }
+            }
+        }
+    }
+
+    void MoveRocks() {
+        var rocks = _entriesByType[(int)Entity.EntityType.Rock].entities.Values.Select(e => (Rock.Ent)e).ToList();
+        PrioritySort(rocks);
+        RocksDetectPlayers(rocks);
 
         foreach (var rock in rocks) {
             if (rock.Moving)
                 Move(rock, rock.Direction, false);
         }
+
+        HandleRockCollision(rocks);
 
         BatchTweens();
         //foreach (var baddy in baddies)
