@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Counter.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://LevelSelect.cs" type="Script" id=2]
 [ext_resource path="res://LevelSelectButton.cs" type="Script" id=3]
-[ext_resource path="res://Level/001.json" type="Resource" id=4]
+[ext_resource path="res://Level/Test.json" type="Resource" id=4]
+[ext_resource path="res://Level/001.json" type="Resource" id=5]
 
 [sub_resource type="Theme" id=1]
 
@@ -38,11 +39,21 @@ text = "Watch for Rolling Rocks"
 scroll_active = false
 
 [node name="Button" type="Button" parent="."]
-margin_left = 504.0
+margin_left = 512.0
 margin_top = 448.0
-margin_right = 952.0
+margin_right = 960.0
 margin_bottom = 512.0
 theme = SubResource( 5 )
 text = "Test"
 script = ExtResource( 3 )
 Level = ExtResource( 4 )
+
+[node name="Button2" type="Button" parent="."]
+margin_left = 512.0
+margin_top = 512.0
+margin_right = 960.0
+margin_bottom = 576.0
+theme = SubResource( 5 )
+text = "Beware the Rock"
+script = ExtResource( 3 )
+Level = ExtResource( 5 )
