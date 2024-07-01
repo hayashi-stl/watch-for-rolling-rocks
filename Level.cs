@@ -931,13 +931,13 @@ public partial class Level : Node2D
     }
 
     void AdjustVisualEffects(bool tween) {
-        foreach (var pos in Enumerable.Range(0, Entity.NumTypes)
-            .Where(i => i != (int)Entity.EntityType.Fixed)
-            .SelectMany(i => _entriesByType[i].entities.Values)
-            .Select(e => e.Position.XY).Distinct())
-        {
-            AdjustEntityPositions(pos, tween);
-        }
+        //foreach (var pos in Enumerable.Range(0, Entity.NumTypes)
+        //    .Where(i => i != (int)Entity.EntityType.Fixed)
+        //    .SelectMany(i => _entriesByType[i].entities.Values)
+        //    .Select(e => e.Position.XY).Distinct())
+        //{
+        //    AdjustEntityPositions(pos, tween);
+        //}
     }
 
     void BatchTweens() {

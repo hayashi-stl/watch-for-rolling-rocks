@@ -10,7 +10,7 @@ public class Entity
         Player,
         Rock,
         Block,
-        Coin,
+        Stairs,
     }
 
 	public static readonly int NumTypes = Enum.GetNames(typeof(EntityType)).Length;
@@ -45,6 +45,7 @@ public class Entity
             {
                 LevelFile.PlayerFile file => Player.SpawnNode(file),
                 LevelFile.RockFile file => Rock.SpawnNode(file),
+                LevelFile.StairsFile file => Stairs.SpawnNode(file),
                 _ => throw new ArgumentException($"{File.CustomData} is invalid")
             };
         }

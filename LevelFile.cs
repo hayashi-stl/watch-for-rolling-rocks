@@ -18,6 +18,7 @@ public class LevelFile
                 .Of<EntityCustomData>("$Type")
                 .RegisterSubtype<PlayerFile>("Player")
                 .RegisterSubtype<RockFile>("Rock")
+                .RegisterSubtype<StairsFile>("Stairs")
                 .SerializeDiscriminatorProperty()
                 .Build();
         }
@@ -28,6 +29,7 @@ public class LevelFile
         [JsonConverter(typeof(StringEnumConverter))]
         public Rock.RockType Type { get; set; }
     }
+    public class StairsFile : EntityCustomData {}
 
     public class EntityFile
     {
