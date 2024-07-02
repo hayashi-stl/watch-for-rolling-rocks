@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://Counter.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://LevelSelect.cs" type="Script" id=2]
@@ -6,6 +6,7 @@
 [ext_resource path="res://Level/Test.json" type="Resource" id=4]
 [ext_resource path="res://Level/001.json" type="Resource" id=5]
 [ext_resource path="res://Level/002.json" type="Resource" id=6]
+[ext_resource path="res://Level/Test2.json" type="Resource" id=7]
 
 [sub_resource type="Theme" id=1]
 
@@ -48,6 +49,16 @@ theme = SubResource( 5 )
 text = "Test"
 script = ExtResource( 3 )
 Level = ExtResource( 4 )
+
+[node name="Button4" type="Button" parent="."]
+margin_left = 64.0
+margin_top = 448.0
+margin_right = 512.0
+margin_bottom = 512.0
+theme = SubResource( 5 )
+text = "Triple Rock Test"
+script = ExtResource( 3 )
+Level = ExtResource( 7 )
 
 [node name="Button2" type="Button" parent="."]
 margin_left = 512.0
