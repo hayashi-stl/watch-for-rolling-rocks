@@ -67,7 +67,7 @@ public partial class Block : EntityNode2D
     public class Ent : Entity {
         Block ThisNode => (Block)EntityNode;
 
-        public bool Moving { get; set; } = false;
+        public BlockType BlockType => ThisNode.Type;
 
         public Ent(int id, Block node) : base(id, EntityType.Block) {
             EntityNode = node;

@@ -126,9 +126,10 @@ public class Entity
     // The direction the entity is facing.
     public Vector3I Direction => _dir;
 
+    public AABB Aabb => new AABB((Vector3)Position, new Vector3(Size().x, Size().y, 1.0f));
+
     public Vector3I SupportVector(Vector3I dir) {
-        var aabb = new AABB((Vector3)Position, new Vector3(Size().x, Size().y, 1.0f));
-        return (Vector3I)aabb.GetSupport(-(Vector3)dir).Round();
+        return (Vector3I)Aabb.GetSupport(-(Vector3)dir).Round();
     }
 
     public String Debug() => $"{Type}: at {Position}, dir {Direction}";

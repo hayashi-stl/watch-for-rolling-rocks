@@ -522,6 +522,13 @@ public partial class Level : Node2D
              : pos.z < 0 ? _pitEntry : DefaultEntry(pos);
     }
 
+    List<Entry> EntriesAt(AABB box) {
+        box = box.Abs();
+        return Enumerable.Range((int)box.Position.z, (int)box.Size.z).SelectMany(z =>
+            Enumerable.Range((int)box.Position.y, (int)box.Size.y).SelectMany(y =>
+                Enumerable.Range((int)box.Position.x, (int)box.Size.x).Select(x => EntryAt(new Vector3I(x, y, z))))).ToList();
+    }
+
     // Looks for the first entry with stuff in it, starting from `start`
     // and adding `dir` each time.
     Entry Raycast(Vector3I start, Vector3I dir) {
@@ -869,18 +876,21 @@ public partial class Level : Node2D
     //    }
     //}
         
-    // After rock movement, handle player-rock movement
-    void HandlePlayerRockCollision() {
-        var players = _entriesByType[(int)Entity.EntityType.Player].entities.Values.ToList();
-        foreach (var player in players) {
-            if (!player.Alive)
+    // After rock movement, handle things getting utterly obliterated by rocks
+    void HandleRockDestruction() {
+        var rocks = _entriesByType[(int)Entity.EntityType.Rock].entities.Values.ToList();
+        foreach (var rock in rocks) {
+            if (!rock.Alive)
                 continue;
-            var others = EntryAt(player.Position).entities.Values.ToList();
+            var others = EntriesAt(rock.Aabb).SelectMany(e => e.entities.Values).ToList();
             foreach (var other in others) {
-                if (player.Alive && other.Alive && other.Type == Entity.EntityType.Rock) {
+                if (rock.Alive && other.Alive && (
+                        other.Type == Entity.EntityType.Player ||
+                        (other is Block.Ent block && block.BlockType == Block.BlockType.Brittle)
+                    )) {
                     //SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, player.Position, Vector3I.Up, Entity.TweenTime);
                     //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
-                    DeleteEntityUndoable(player);
+                    DeleteEntityUndoable(other);
                 }
             }
         }

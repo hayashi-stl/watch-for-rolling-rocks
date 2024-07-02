@@ -127,8 +127,8 @@ public partial class Level : Node2D
     }
 
     // HitRock can be null to indicate that another type of block was hit
-    List<(Rock.Ent Rock, Rock.Ent HitRock, float Time)> RockCollisions(Rock.Ent rock) {
-        var collisions = new List<(Rock.Ent Rock, Rock.Ent HitRock, float Time)>();
+    List<(Rock.Ent HitRock, float Time)> RockCollisions(Rock.Ent rock) {
+        var collisions = new List<(Rock.Ent HitRock, float Time)>();
         if (!rock.Moving)
             return collisions;
 
@@ -138,8 +138,12 @@ public partial class Level : Node2D
                 var entry = EntryAt(pos);
                 var rocks = entry.WithType(Entity.EntityType.Rock).Select(e => (Rock.Ent)e).ToList();
                 
-                if (entry.HasRigidEntity(-rock.Direction) || rocks.Exists(r => !r.Moving))
+                if (entry.entities.Values.Any(e => e.IsRigid(-rock.Direction) && e.Type != Entity.EntityType.Rock)) {
                     collisions.Add((null, 0.0f));
+                }
+
+                foreach (var other in rocks.Where(r => !r.Moving))
+                    collisions.Add((other, 0.0f));
 
                 foreach (var other in rocks.Where(r => r != rock)) {
                     // Opposite directions: always move back
@@ -169,10 +173,14 @@ public partial class Level : Node2D
 
     void HandleRockCollision(IEnumerable<Rock.Ent> rocks) {
         var collisionRocks = new SimplePriorityQueue<(Rock.Ent Rock, Rock.Ent HitRock, float Time)>();
+        GD.Print("Collision");
         foreach (var rock in rocks) {
             var collisions = RockCollisions(rock);
-            foreach  (var (hitRock, time) in collisions)
+            GD.Print($"    {rock.Debug()}");
+            foreach  (var (hitRock, time) in collisions) {
+                GD.Print($"        {(hitRock != null ? hitRock.Debug() : "<fixed>")}, {time}");
                 collisionRocks.Enqueue((rock, hitRock, time), time);
+            }
         }
 
         while (collisionRocks.Any()) {
@@ -187,19 +195,23 @@ public partial class Level : Node2D
                 var (rock, hitRock) = pair;
                 return !rock.Moving ? new List<Rock.Ent>() :
                     hitRock == null ? new List<Rock.Ent>(){ rock } :
-                    hitRock.Moving ? new List<Rock.Ent>(){ rock } :
-                    // TODO: Do they still intersect
-                    new List<Rock.Ent>();
+                    rock.Aabb.Intersects(hitRock.Aabb) ? new List<Rock.Ent>(){ rock } : new List<Rock.Ent>();
             }).ToList();
             foreach (var rock in rocksToMove) {
                 if (rock.Moving) {
                     Move(rock, -rock.Direction, false);
                     SetRockMovingUndoable(rock, false);
 
-                    // TODO: Add backward collisions
-                    var collisions = RockCollisions(rock);
-                    foreach  (var (hitRock, time_) in collisions)
-                        collisionRocks.Enqueue((rock, hitRock, time_), time_);
+                    // Have intersecting rocks check for collisions.
+                    // This rock already moved back, so it can't move again, but it may cause
+                    // other rocks to move back via a chain reaction.
+                    var intersectingRocks = EntriesAt(rock.Aabb).SelectMany(entry => entry.entities.Values)
+                        .Where(e => e is Rock.Ent)
+                        .Select(r => (Rock.Ent)r);
+                    foreach (var intersectingRock in intersectingRocks) {
+                        foreach (var (hitRock, time_) in RockCollisions(intersectingRock))
+                            collisionRocks.Enqueue((intersectingRock, hitRock, time_), time_);
+                    }
                 }
             }
         }
@@ -216,7 +228,7 @@ public partial class Level : Node2D
         }
 
         HandleRockCollision(rocks);
-        HandlePlayerRockCollision();
+        HandleRockDestruction();
 
         BatchTweens();
         //foreach (var baddy in baddies)
