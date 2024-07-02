@@ -21,6 +21,7 @@ public partial class Global : Node
 
         public static readonly PackedScene Player = GD.Load<PackedScene>("res://Player/Player.tscn");
         public static readonly PackedScene Rock = GD.Load<PackedScene>("res://Rock/Rock.tscn");
+        public static readonly PackedScene Block = GD.Load<PackedScene>("res://Block/Block.tscn");
         public static readonly PackedScene Stairs = GD.Load<PackedScene>("res://Stairs/Stairs.tscn");
 
         public static readonly PackedScene Stage = GD.Load<PackedScene>("res://Stage.tscn");

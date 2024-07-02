@@ -23,6 +23,8 @@ public partial class Level : Node2D
 
         public bool HasFixedBlock() => entities.Values.Any(ent => ent.IsFixed());
 
+        public bool HasRigidEntity(Vector3I dir) => entities.Values.Any(ent => ent.IsRigid(dir));
+
         public bool HasBlock(Vector3I dir) => entities.Values.Any(ent => ent.IsBlock(dir));
 
         // Blocks that have a node. Returns Array[Entity]
@@ -867,25 +869,38 @@ public partial class Level : Node2D
     //    }
     //}
         
-    //// For every player or baddy that moved, handle collision
-    //void HandlePlayerBaddyCollision(IEnumerable<Entity> moved) {
-    //    foreach (var ent in moved) {
-    //        if (!ent.Alive ||
-    //                (ent.Type != Entity.EntityType.Player && ent.Type != Entity.EntityType.Baddy))
-    //            continue;
-    //        var otherType = ent.Type == Entity.EntityType.Player ? Entity.EntityType.Baddy : Entity.EntityType.Player;
-    //        var others = EntryAt(ent.Position).entities.Values.ToList();
-    //        foreach (var other in others) {
-    //            if (ent.Alive && other.Alive && other.Type == otherType) {
-    //                var player = otherType == Entity.EntityType.Player ? other : ent;
-    //                var baddy = otherType == Entity.EntityType.Player ? ent : other;
-    //                SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
-    //                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
-    //                DeleteEntityUndoable(player);
-    //            }
-    //        }
-    //    }
-    //}
+    // After rock movement, handle player-rock movement
+    void HandlePlayerRockCollision() {
+        var players = _entriesByType[(int)Entity.EntityType.Player].entities.Values.ToList();
+        foreach (var player in players) {
+            if (!player.Alive)
+                continue;
+            var others = EntryAt(player.Position).entities.Values.ToList();
+            foreach (var other in others) {
+                if (player.Alive && other.Alive && other.Type == Entity.EntityType.Rock) {
+                    //SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, player.Position, Vector3I.Up, Entity.TweenTime);
+                    //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
+                    DeleteEntityUndoable(player);
+                }
+            }
+        }
+    }
+
+    // Win: player and stairs overlap
+    bool CheckWinCondition() {
+        var players = _entriesByType[(int)Entity.EntityType.Player].entities.Values.ToList();
+        foreach (var player in players) {
+            if (!player.Alive)
+                continue;
+            var others = EntryAt(player.Position).entities.Values.ToList();
+            foreach (var other in others) {
+                if (player.Alive && other.Alive && other.Type == Entity.EntityType.Stairs) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     readonly List<(float, List<Vector2>)> _overlappingEntityOffsets = new List<(float, List<(double, double)>)>() {
         (1.0f,  new List<(double, double)>(){ (0.0, 0.0) }),
@@ -1040,7 +1055,7 @@ public partial class Level : Node2D
         if (!_clear)
             foreach (var input in _inputs) {
                 Step(input);
-                if (false)
+                if (CheckWinCondition())
                 {
                     _clear = true;
                     LevelStage.SetLevelClear(true);
