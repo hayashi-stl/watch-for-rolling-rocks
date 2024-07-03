@@ -15,6 +15,7 @@ public class Maker : Node2D
         set {
             if (value) {
                 var level = SaveLevel();
+                level.Rebase();
                 _levelFile.Set("text", level.ToJson());
             }
         }

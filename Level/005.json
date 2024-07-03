@@ -1,7 +1,7 @@
 {
   "Name": "Tight Tunnels, Rolling Rocks",
   "Controls": "",
-  "Base": [-4, -3, 0],
+  "Base": [0, 0, 0],
   "Size": [24, 16, 2],
   "Map": [
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -40,7 +40,7 @@
     ],
   "Entities": [
     {
-      "Position": [10, 6, 1],
+      "Position": [14, 9, 1],
       "Direction": [0, -1, 0],
       "Gravity": [0, 0, -1],
       "CounterValue": null,
@@ -49,7 +49,7 @@
       }
     },
     {
-      "Position": [2, 4, 1],
+      "Position": [6, 7, 1],
       "Direction": [0, 1, 0],
       "Gravity": [0, 0, -1],
       "CounterValue": null,
@@ -59,7 +59,7 @@
       }
     },
     {
-      "Position": [0, 4, 1],
+      "Position": [4, 7, 1],
       "Direction": [0, 1, 0],
       "Gravity": [0, 0, -1],
       "CounterValue": null,
@@ -69,7 +69,7 @@
       }
     },
     {
-      "Position": [-2, 4, 1],
+      "Position": [2, 7, 1],
       "Direction": [0, 1, 0],
       "Gravity": [0, 0, -1],
       "CounterValue": null,
@@ -79,7 +79,7 @@
       }
     },
     {
-      "Position": [4, 4, 1],
+      "Position": [8, 7, 1],
       "Direction": [0, 1, 0],
       "Gravity": [0, 0, -1],
       "CounterValue": null,
@@ -89,7 +89,7 @@
       }
     },
     {
-      "Position": [6, 4, 1],
+      "Position": [10, 7, 1],
       "Direction": [0, 1, 0],
       "Gravity": [0, 0, -1],
       "CounterValue": null,
@@ -99,7 +99,7 @@
       }
     },
     {
-      "Position": [-3, 5, 1],
+      "Position": [1, 8, 1],
       "Direction": [1, 0, 0],
       "Gravity": [0, 0, -1],
       "CounterValue": null,
