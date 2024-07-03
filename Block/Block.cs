@@ -30,7 +30,9 @@ public partial class Block : EntityNode2D
     }
         
 	public override LevelFile.EntityCustomData LevelEntityCustomParams() {
-        return new LevelFile.BlockFile();
+        return new LevelFile.BlockFile() {
+            Type = Type
+        };
     }
         
     protected override void UpdateTexture() {
@@ -48,6 +50,7 @@ public partial class Block : EntityNode2D
     public override void _Ready() {
         PrepareCommon();
         _activeVisual = GetNode<Sprite>("%Brittle");
+        UpdateTexture();
     }
 
 

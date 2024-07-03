@@ -12,6 +12,7 @@ public partial class Rock : EntityNode2D
 
     public enum RockType {
         LineChase,
+        DirLineChase,
     }
 
     RockType _type = RockType.LineChase;
@@ -32,13 +33,16 @@ public partial class Rock : EntityNode2D
     }
         
 	public override LevelFile.EntityCustomData LevelEntityCustomParams() {
-        return new LevelFile.RockFile();
+        return new LevelFile.RockFile() {
+            Type = Type
+        };
     }
         
     protected override void UpdateTexture() {
         _activeVisual.Visible = false;
         var visualName = Type switch {
             RockType.LineChase => "%LineChase",
+            RockType.DirLineChase => "%DirLineChase",
             _ => throw new InvalidEnumArgumentException()
         };
         _activeVisual = GetNode<Sprite>(visualName);
@@ -50,6 +54,7 @@ public partial class Rock : EntityNode2D
     public override void _Ready() {
         PrepareCommon();
         _activeVisual = GetNode<Sprite>("%LineChase");
+        UpdateTexture();
     }
 
 
@@ -68,6 +73,8 @@ public partial class Rock : EntityNode2D
 
     public class Ent : Entity {
         Rock ThisNode => (Rock)EntityNode;
+
+        public RockType RockType => ThisNode.Type;
 
         public bool Moving { get; set; } = false;
 
@@ -89,6 +96,14 @@ public partial class Rock : EntityNode2D
                 new EntityDef(Id, this, new LevelFile.RockFile{
                     Type = ThisNode.Type
                 });
+        }
+
+        public bool CanDetectPlayerInDir(Vector3I dir) {
+            return RockType switch {
+                RockType.LineChase => true,
+                RockType.DirLineChase => Math.Abs(dir.Dot(Direction)) > 0,
+                _ => throw new InvalidEnumArgumentException()
+            };
         }
     }
 }
@@ -115,11 +130,13 @@ public partial class Level : Node2D
                 }
 
                 foreach (var (Start, Dir) in rays) {
-                    var entries = Raycast(Start, Dir);
-                    if (entries.WithType(Entity.EntityType.Player).Any()) {
-                        RotateEntityUndoable(rock, Dir);
-                        SetRockMovingUndoable(rock, true);
-                        break;
+                    if (rock.CanDetectPlayerInDir(Dir)) {
+                        var entries = Raycast(Start, Dir);
+                        if (entries.WithType(Entity.EntityType.Player).Any()) {
+                            RotateEntityUndoable(rock, Dir);
+                            SetRockMovingUndoable(rock, true);
+                            break;
+                        }
                     }
                 }
             }
@@ -173,12 +190,9 @@ public partial class Level : Node2D
 
     void HandleRockCollision(IEnumerable<Rock.Ent> rocks) {
         var collisionRocks = new SimplePriorityQueue<(Rock.Ent Rock, Rock.Ent HitRock, float Time)>();
-        GD.Print("Collision");
         foreach (var rock in rocks) {
             var collisions = RockCollisions(rock);
-            GD.Print($"    {rock.Debug()}");
             foreach  (var (hitRock, time) in collisions) {
-                GD.Print($"        {(hitRock != null ? hitRock.Debug() : "<fixed>")}, {time}");
                 collisionRocks.Enqueue((rock, hitRock, time), time);
             }
         }
