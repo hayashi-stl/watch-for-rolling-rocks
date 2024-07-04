@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Block/Brittle.png" type="Texture" id=1]
 [ext_resource path="res://Block/Block.cs" type="Script" id=2]
 [ext_resource path="res://Block/Brittle Vert Connector.png" type="Texture" id=3]
 [ext_resource path="res://Block/Brittle Horz Connector.png" type="Texture" id=4]
+[ext_resource path="res://Block/One Way.png" type="Texture" id=5]
 
 [node name="Block" type="Node2D"]
 script = ExtResource( 2 )
@@ -28,3 +29,10 @@ visible = false
 scale = Vector2( 4, 4 )
 z_index = 9
 texture = ExtResource( 3 )
+
+[node name="OneWay" type="Sprite" parent="."]
+unique_name_in_owner = true
+visible = false
+scale = Vector2( 4, 4 )
+z_index = 8
+texture = ExtResource( 5 )

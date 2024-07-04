@@ -1,0 +1,104 @@
+{
+  "Name": "Just the Right Size",
+  "Controls": "",
+  "Base": [0, 0, 0],
+  "Size": [13, 11, 2],
+  "Map": [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+      0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+      0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+      0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+      0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1,
+      1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1,
+      1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1,
+      1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1,
+      1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1,
+      1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    ],
+  "Entities": [
+    {
+      "Position": [6, 5, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Player"
+      }
+    },
+    {
+      "Position": [3, 1, 1],
+      "Direction": [1, 0, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Rock",
+        "Type": "LineChase"
+      }
+    },
+    {
+      "Position": [8, 1, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Rock",
+        "Type": "DirLineChase"
+      }
+    },
+    {
+      "Position": [9, 7, 1],
+      "Direction": [0, -1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Stairs"
+      }
+    },
+    {
+      "Position": [6, 4, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "Brittle",
+        "Shape": [[0, 0], [1, 0], [2, 0], [3, 0]]
+      }
+    },
+    {
+      "Position": [1, 5, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "Brittle",
+        "Shape": [[0, 0], [1, 0], [0, 1], [1, 1]]
+      }
+    },
+    {
+      "Position": [8, 6, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "Brittle",
+        "Shape": [[0, 0], [1, 0]]
+      }
+    }
+  ]
+}

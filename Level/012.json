@@ -1,0 +1,152 @@
+{
+  "Name": "2 Rocks, 2 Blockages",
+  "Controls": "",
+  "Base": [0, 0, 0],
+  "Size": [16, 13, 2],
+  "Map": [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, 2, 2, 2, 1, 1, 0, 2, 2, 0, 1, 0, 0,
+      0, 1, 1, 0, 2, 2, 0, 1, 0, 0, 2, 2, 0, 1, 1, 0,
+      0, 0, 1, 0, 2, 2, 0, 1, 1, 1, 2, 2, 0, 0, 1, 0,
+      0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1,
+      1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1,
+      1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1,
+      1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1,
+      1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    ],
+  "Entities": [
+    {
+      "Position": [8, 4, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Player"
+      }
+    },
+    {
+      "Position": [1, 5, 1],
+      "Direction": [1, 0, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Rock",
+        "Type": "LineChase"
+      }
+    },
+    {
+      "Position": [13, 5, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Rock",
+        "Type": "LineChase"
+      }
+    },
+    {
+      "Position": [8, 11, 1],
+      "Direction": [0, -1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Stairs"
+      }
+    },
+    {
+      "Position": [6, 2, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "Brittle",
+        "Shape": [[0, 0], [1, 0], [2, 0], [3, 0]]
+      }
+    },
+    {
+      "Position": [5, 8, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "Brittle",
+        "Shape": [[0, 0], [1, 0], [2, 0]]
+      }
+    },
+    {
+      "Position": [4, 6, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "OneWay",
+        "Shape": [[0, 0]]
+      }
+    },
+    {
+      "Position": [5, 6, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "OneWay",
+        "Shape": [[0, 0]]
+      }
+    },
+    {
+      "Position": [10, 6, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "OneWay",
+        "Shape": [[0, 0]]
+      }
+    },
+    {
+      "Position": [11, 6, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "OneWay",
+        "Shape": [[0, 0]]
+      }
+    },
+    {
+      "Position": [8, 10, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "Brittle",
+        "Shape": [[0, 0], [1, 0], [2, 0]]
+      }
+    }
+  ]
+}

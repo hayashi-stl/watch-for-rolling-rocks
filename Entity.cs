@@ -109,6 +109,8 @@ public class Entity
     // Whether this entity intersects another entity. Uses shapes to compare.
     public bool Intersects(Entity other) => Positions().Intersect(other.Positions()).Any();
 
+    public bool IncludesTile(Vector3I pos) => Positions().Any(v => v == pos);
+
     // Whether the entity is a fixed block. It can't even be moved by gravity.
     public virtual bool IsFixed() => false;
         

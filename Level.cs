@@ -528,10 +528,12 @@ public partial class Level : Node2D
 
     // Looks for the first entry with stuff in it, starting from `start`
     // and adding `dir` each time.
-    Entry Raycast(Vector3I start, Vector3I dir) {
+    Entry RaycastToPlayer(Vector3I start, Vector3I dir) {
         while (true) {
             var result = EntryAt(start);
-            if (result.entities.Any())
+            if (result.entities.Values.Any(e => e.IsBlock(-dir)))
+                return null;
+            if (result.entities.Values.Any(e => e.Type == Entity.EntityType.Player))
                 return result;
             start += dir;
         }
@@ -871,9 +873,6 @@ public partial class Level : Node2D
         
     // After rock movement, handle things getting utterly obliterated by rocks
     void HandleRockDestruction(RockCollisionResult rockResult) {
-        GD.Print("Rock destruction");
-        foreach (var pos in rockResult.overlappedPositions)
-            GD.Print($"    {pos}");
         var others = EntriesAt(rockResult.overlappedPositions).SelectMany(e => e.entities.Values).ToList();
         foreach (var other in others) {
             if (other.Alive && (

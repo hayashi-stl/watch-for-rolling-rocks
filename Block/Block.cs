@@ -12,6 +12,7 @@ public partial class Block : EntityNode2D
 
     public enum BlockType {
         Brittle,
+        OneWay,
     }
 
 	public static readonly int NumTypes = Enum.GetNames(typeof(BlockType)).Length;
@@ -112,6 +113,11 @@ public partial class Block : EntityNode2D
             HorzConnector = GetNode<Sprite>("%BrittleHorz"),
             VertConnector = GetNode<Sprite>("%BrittleVert"),
         };
+        _defs[(int)BlockType.OneWay] = new Def() {
+            Visual = GetNode<Sprite>("%OneWay"),
+            HorzConnector = null,
+            VertConnector = null,
+        };
 
         UpdateTexture();
     }
@@ -144,9 +150,13 @@ public partial class Block : EntityNode2D
 
         public override bool IsFixed() => true;
 
-        public override bool IsBlock(Vector3I dir) => true;
+        public override bool IsBlock(Vector3I dir) => BlockType switch {
+            BlockType.Brittle => true,
+            BlockType.OneWay => dir == Direction,
+            _ => throw new InvalidEnumArgumentException()
+        };
 
-        public override bool IsRigid(Vector3I dir) => false;
+        public override bool IsRigid(Vector3I dir) => BlockType == BlockType.OneWay && IsBlock(dir);
 
         public override bool IsPushable(Vector3I dir) => false;
 

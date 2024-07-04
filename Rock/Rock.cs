@@ -138,8 +138,8 @@ public partial class Level : Node2D
 
                 foreach (var (Start, Dir) in rays) {
                     if (rock.CanDetectPlayerInDir(Dir)) {
-                        var entries = Raycast(Start, Dir);
-                        if (entries.WithType(Entity.EntityType.Player).Any()) {
+                        var entries = RaycastToPlayer(Start, Dir);
+                        if (entries != null && entries.WithType(Entity.EntityType.Player).Any()) {
                             RotateEntityUndoable(rock, Dir);
                             SetRockMovingUndoable(rock, true);
                             break;
@@ -160,10 +160,11 @@ public partial class Level : Node2D
             var entry = EntryAt(pos);
             var rocks = entry.WithType(Entity.EntityType.Rock).Select(e => (Rock.Ent)e).ToList();
             
-            if (entry.entities.Values.Where(e => e.IsRigid(-rock.Direction) && e.Type != Entity.EntityType.Rock).FirstOrDefault() is Entity e)
+            if (entry.entities.Values.Where(e => e.IsRigid(-rock.Direction) && e.Type != Entity.EntityType.Rock).FirstOrDefault() is Entity e &&
+                !rock.IncludesTile(pos + rock.Direction))
                 collisions.Add((e, 0.0f));
 
-            foreach (var en in entry.entities.Values.Where(e => e is Block.Ent b && b.Shape().Count >= rock.SideLength * rock.SideLength))
+            foreach (var en in entry.entities.Values.Where(e => e is Block.Ent b && b.BlockType == Block.BlockType.Brittle && b.Shape().Count >= rock.SideLength * rock.SideLength))
                 collisions.Add((en, 0.05f));
 
             foreach (var other in rocks.Where(r => !r.Moving))
@@ -236,7 +237,7 @@ public partial class Level : Node2D
                     Move(rock, -rock.Direction, false);
                     SetRockMovingUndoable(rock, false);
 
-                    if (hitEntity is Block.Ent b && b.Shape().Count == rock.SideLength * rock.SideLength)
+                    if (hitEntity is Block.Ent b && b.BlockType == Block.BlockType.Brittle && b.Shape().Count == rock.SideLength * rock.SideLength)
                         extraDestroyedBlocks.Add(hitEntity);
 
                     // Have intersecting rocks check for collisions.
