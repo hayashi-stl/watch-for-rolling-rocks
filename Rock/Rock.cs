@@ -26,7 +26,7 @@ public partial class Rock : EntityNode2D
         }
     }
 
-    public override Vector2I Size() => Vector2I.One * 2;
+    protected override Vector2 NaturalOffsetPosition => Vector2.One * Util.TileSize / 2;
 
     public override Entity LevelEntity(int id) {
         return new Ent(id, this);
@@ -76,6 +76,13 @@ public partial class Rock : EntityNode2D
 
         public RockType RockType => ThisNode.Type;
 
+        public override List<Vector3I> Shape() => new List<Vector3I>() {
+            new Vector3I(0, 0, 0), new Vector3I(1, 0, 0),
+            new Vector3I(0, 1, 0), new Vector3I(1, 1, 0),
+        };
+
+        public int SideLength => 2;
+
         public bool Moving { get; set; } = false;
 
         public Ent(int id, Rock node) : base(id, EntityType.Rock) {
@@ -120,13 +127,13 @@ public partial class Level : Node2D
             if (!rock.Moving) {
                 // Detect players
                 var rays = new List<(Vector3I Start, Vector3I Dir)>();
-                for (int dx = 0; dx < rock.Size().x; ++dx) {
+                for (int dx = 0; dx < rock.SideLength; ++dx) {
                     rays.Add((rock.Position + Util.DirUp + Util.DirRight * dx, Util.DirUp));
-                    rays.Add((rock.Position + Util.DirDown * rock.Size().y + Util.DirRight * dx, Util.DirDown));
+                    rays.Add((rock.Position + Util.DirDown * rock.SideLength + Util.DirRight * dx, Util.DirDown));
                 }
-                for (int dy = 0; dy < rock.Size().y; ++dy) {
+                for (int dy = 0; dy < rock.SideLength; ++dy) {
                     rays.Add((rock.Position + Util.DirLeft + Util.DirDown * dy, Util.DirLeft));
-                    rays.Add((rock.Position + Util.DirRight * rock.Size().x + Util.DirDown * dy, Util.DirRight));
+                    rays.Add((rock.Position + Util.DirRight * rock.SideLength + Util.DirDown * dy, Util.DirRight));
                 }
 
                 foreach (var (Start, Dir) in rays) {
@@ -143,83 +150,99 @@ public partial class Level : Node2D
         }
     }
 
-    // HitRock can be null to indicate that another type of block was hit
-    List<(Rock.Ent HitRock, float Time)> RockCollisions(Rock.Ent rock) {
-        var collisions = new List<(Rock.Ent HitRock, float Time)>();
+    List<(Entity HitEntity, float Time)> RockCollisions(Rock.Ent rock) {
+        var collisions = new List<(Entity HitEntity, float Time)>();
         if (!rock.Moving)
             return collisions;
 
-        for (int y = 0; y < rock.Size().y; ++y)
-            for (int x = 0; x < rock.Size().x; ++x) {
-                var pos = rock.Position + new Vector3I(x, y, 0);
-                var entry = EntryAt(pos);
-                var rocks = entry.WithType(Entity.EntityType.Rock).Select(e => (Rock.Ent)e).ToList();
-                
-                if (entry.entities.Values.Any(e => e.IsRigid(-rock.Direction) && e.Type != Entity.EntityType.Rock)) {
-                    collisions.Add((null, 0.0f));
+        foreach (Vector3I offset in rock.Shape()) {
+            var pos = rock.Position + offset;
+            var entry = EntryAt(pos);
+            var rocks = entry.WithType(Entity.EntityType.Rock).Select(e => (Rock.Ent)e).ToList();
+            
+            if (entry.entities.Values.Where(e => e.IsRigid(-rock.Direction) && e.Type != Entity.EntityType.Rock).FirstOrDefault() is Entity e)
+                collisions.Add((e, 0.0f));
+
+            foreach (var en in entry.entities.Values.Where(e => e is Block.Ent b && b.Shape().Count >= rock.SideLength * rock.SideLength))
+                collisions.Add((en, 0.05f));
+
+            foreach (var other in rocks.Where(r => !r.Moving))
+                collisions.Add((other, 0.0f));
+
+            foreach (var other in rocks.Where(r => r != rock)) {
+                // Opposite directions: always move back
+                if (rock.Direction.Dot(other.Direction) < 0) {
+                    var supp1 = rock.SupportVector(rock.Direction);
+                    var supp2 = other.SupportVector(other.Direction);
+                    float distance = (supp2 - supp1).Dot(rock.Direction);
+                    // 0 => 1, -2 => 0
+                    collisions.Add((other, distance * 0.5f + 1));
                 }
-
-                foreach (var other in rocks.Where(r => !r.Moving))
-                    collisions.Add((other, 0.0f));
-
-                foreach (var other in rocks.Where(r => r != rock)) {
-                    // Opposite directions: always move back
-                    if (rock.Direction.Dot(other.Direction) < 0) {
-                        var supp1 = rock.SupportVector(rock.Direction);
-                        var supp2 = other.SupportVector(other.Direction);
-                        float distance = (supp2 - supp1).Dot(rock.Direction);
-                        // 0 => 1, -2 => 0
-                        collisions.Add((other, distance * 0.5f + 1));
-                    }
-                    // Perpendicular directions: move back if would reach intersection point at same time
-                    // TODO: This is generally wrong. It should be if their corners touch.
-                    else if (rock.Direction.Dot(other.Direction) == 0) {
-                        var horzRock = rock.Direction.x == 0 ? other : rock;
-                        var vertRock = rock.Direction.x == 0 ? rock : other;
-                        var intersectPos = new Vector3I(vertRock.Position.x, horzRock.Position.y, pos.z);
-                        var horzDistance = (horzRock.Position - intersectPos).Dot(horzRock.Direction);
-                        var vertDistance = (vertRock.Position - intersectPos).Dot(vertRock.Direction);
-                        if (rock == horzRock ? horzDistance <= vertDistance : vertDistance <= horzDistance)
-                            collisions.Add((other, horzDistance == vertDistance ? 0.1f : 0.0f));
-                    }
+                // Perpendicular directions: move back if would reach intersection point at same time
+                // TODO: This is generally wrong. It should be if their corners touch.
+                else if (rock.Direction.Dot(other.Direction) == 0) {
+                    var horzRock = rock.Direction.x == 0 ? other : rock;
+                    var vertRock = rock.Direction.x == 0 ? rock : other;
+                    var intersectPos = new Vector3I(vertRock.Position.x, horzRock.Position.y, pos.z);
+                    var horzDistance = (horzRock.Position - intersectPos).Dot(horzRock.Direction);
+                    var vertDistance = (vertRock.Position - intersectPos).Dot(vertRock.Direction);
+                    if (rock == horzRock ? horzDistance <= vertDistance : vertDistance <= horzDistance)
+                        collisions.Add((other, horzDistance == vertDistance ? 0.1f : 0.0f));
                 }
             }
+        }
 
         return collisions;
     }
 
-    void HandleRockCollision(IEnumerable<Rock.Ent> rocks) {
-        var collisionRocks = new SimplePriorityQueue<(Rock.Ent Rock, Rock.Ent HitRock, float Time)>();
+    class RockCollisionResult {
+        public List<Vector3I> overlappedPositions; // two rocks may bump into each other with 1 tile in between
+        public List<Entity> extraDestroyedBlocks; // in case block size = rock size
+    }
+
+    RockCollisionResult HandleRockCollision(IEnumerable<Rock.Ent> rocks) {
+        var collisionRocks = new SimplePriorityQueue<(Rock.Ent Rock, Entity HitEntity, float Time)>();
         foreach (var rock in rocks) {
             var collisions = RockCollisions(rock);
-            foreach  (var (hitRock, time) in collisions) {
-                collisionRocks.Enqueue((rock, hitRock, time), time);
+            foreach  (var (hitEntity, time) in collisions) {
+                collisionRocks.Enqueue((rock, hitEntity, time), time);
             }
         }
 
+        var overlappedPositions = new HashSet<Vector3I>();
+        var extraDestroyedBlocks = new HashSet<Entity>();
+
         while (collisionRocks.Any()) {
             var (_, _, time) = collisionRocks.First();
-            var rockPairs = new List<(Rock.Ent Rock, Rock.Ent HitRock)>();
+            var rockPairs = new List<(Rock.Ent Rock, Entity HitRock)>();
             while (collisionRocks.Any() && collisionRocks.First().Time == time) {
-                var (rock, hitRock, _) = collisionRocks.Dequeue();
-                rockPairs.Add((rock, hitRock));
+                var (rock, hitEntity, _) = collisionRocks.Dequeue();
+                rockPairs.Add((rock, hitEntity));
             }
 
             var rocksToMove = rockPairs.SelectMany(pair => {
-                var (rock, hitRock) = pair;
-                return !rock.Moving ? new List<Rock.Ent>() :
-                    hitRock == null ? new List<Rock.Ent>(){ rock } :
-                    rock.Aabb.Intersects(hitRock.Aabb) ? new List<Rock.Ent>(){ rock } : new List<Rock.Ent>();
+                var (rock, hitEntity) = pair;
+                return !rock.Moving ? new List<(Rock.Ent Rock, Entity HitEntity)>() :
+                    rock.Intersects(hitEntity) ? new List<(Rock.Ent Rock, Entity HitEntity)>(){ (rock, hitEntity) }
+                        : new List<(Rock.Ent Rock, Entity HitEntity)>();
             }).ToList();
-            foreach (var rock in rocksToMove) {
+            foreach (var (rock, hitEntity) in rocksToMove) {
                 if (rock.Moving) {
+                    // The space between blocks hitting each other with 1 space apart isn't safe!
+                    if (time >= 0.5)
+                        foreach (var rockPos in rock.Positions())    
+                            overlappedPositions.Add(rockPos);
+
                     Move(rock, -rock.Direction, false);
                     SetRockMovingUndoable(rock, false);
+
+                    if (hitEntity is Block.Ent b && b.Shape().Count == rock.SideLength * rock.SideLength)
+                        extraDestroyedBlocks.Add(hitEntity);
 
                     // Have intersecting rocks check for collisions.
                     // This rock already moved back, so it can't move again, but it may cause
                     // other rocks to move back via a chain reaction.
-                    var intersectingRocks = EntriesAt(rock.Aabb).SelectMany(entry => entry.entities.Values)
+                    var intersectingRocks = EntriesAt(rock.Positions()).SelectMany(entry => entry.entities.Values)
                         .Where(e => e is Rock.Ent)
                         .Select(r => (Rock.Ent)r);
                     foreach (var intersectingRock in intersectingRocks) {
@@ -229,6 +252,14 @@ public partial class Level : Node2D
                 }
             }
         }
+
+        foreach (var pos in rocks.Where(r => r.Moving).SelectMany(r => r.Positions()))
+            overlappedPositions.Add(pos);
+
+        return new RockCollisionResult(){
+            overlappedPositions = overlappedPositions.ToList(),
+            extraDestroyedBlocks = extraDestroyedBlocks.ToList(),
+        };
     }
 
     void MoveRocks() {
@@ -241,8 +272,8 @@ public partial class Level : Node2D
                 Move(rock, rock.Direction, false);
         }
 
-        HandleRockCollision(rocks);
-        HandleRockDestruction();
+        var result = HandleRockCollision(rocks);
+        HandleRockDestruction(result);
 
         BatchTweens();
         //foreach (var baddy in baddies)

@@ -62,8 +62,8 @@ public class Maker : Node2D
                     var mapPosition = cellPosition - level.Base;
                     var cell = level.Map[(mapPosition.z * level.Size.y + mapPosition.y) * level.Size.x + mapPosition.x];
 
-                    if (cell != 0) {
-                        tileMap.SetCell(x, y, z);
+                    if (cell != LevelFile.Tile.Invalid) {
+                        tileMap.SetCell(x, y, Global.Tile.FromLevelFileTile(cell, z));
                     }
                 }
 
@@ -98,8 +98,10 @@ public class Maker : Node2D
                 Size = new Vector3I(bounds.Size.x, bounds.Size.y, Level.SizeZ),
                 Map = Enumerable.Range(Level.MinZ, Level.SizeZ).SelectMany(z =>
                     Enumerable.Range(bounds.Position.y, bounds.Size.y).SelectMany(y =>
-                        Enumerable.Range(bounds.Position.x, bounds.Size.x).Select(x =>
-                            z <= _tileMap.GetCell(x, y) ? 1 : 0
+                        Enumerable.Range(bounds.Position.x, bounds.Size.x).Select(x => {
+                            var (tile, z_) = Global.Tile.ToLevelFileTile(_tileMap.GetCell(x, y));
+                            return z == z_ ? tile : LevelFile.Tile.Invalid;
+                        }
                     ))).ToList(),
                 Entities = entities.Select(e => e.LevelEntityFile()).ToList()
             };

@@ -509,7 +509,7 @@ public partial class Level : Node2D
 
     Entry DefaultEntry(Vector3I pos) {
         var entry = new Entry();
-        entry.Add(new Entity.Fixed(-1, pos));
+        entry.Add(new Entity.Fixed(-1, pos, LevelFile.Tile.Block));
         return entry;
     }
         
@@ -522,12 +522,9 @@ public partial class Level : Node2D
              : pos.z < 0 ? _pitEntry : DefaultEntry(pos);
     }
 
-    List<Entry> EntriesAt(AABB box) {
-        box = box.Abs();
-        return Enumerable.Range((int)box.Position.z, (int)box.Size.z).SelectMany(z =>
-            Enumerable.Range((int)box.Position.y, (int)box.Size.y).SelectMany(y =>
-                Enumerable.Range((int)box.Position.x, (int)box.Size.x).Select(x => EntryAt(new Vector3I(x, y, z))))).ToList();
-    }
+    List<Entry> EntriesAt(List<Vector3I> positions) =>
+        positions.Select(v => EntryAt(v)).ToList();
+    
 
     // Looks for the first entry with stuff in it, starting from `start`
     // and adding `dir` each time.
@@ -541,9 +538,8 @@ public partial class Level : Node2D
     }
         
     public DeleteAction AddEntity(Entity ent, Vector3I pos, bool tween = true) {
-        for (int y = 0; y < ent.Size().y; ++y)
-            for (int x = 0; x < ent.Size().x; ++x)
-                EntryAt(pos + new Vector3I(x, y, 0)).Add(ent);
+        foreach (Vector3I offset in ent.Shape())
+            EntryAt(pos + offset).Add(ent);
         _entriesByType[(int)ent.Type].Add(ent);
         _entriesById[ent.Id] = ent;
         return new DeleteAction(ent);
@@ -556,9 +552,8 @@ public partial class Level : Node2D
 
     AddAction DeleteEntity(Entity ent, DefeatParams param, bool tween = true) {
         var def = ent.Def;
-        for (int y = 0; y < ent.Size().y; ++y)
-            for (int x = 0; x < ent.Size().x; ++x)
-                EntryAt(ent.Position + new Vector3I(x, y, 0)).Remove(ent);
+        foreach (Vector3I offset in ent.Shape())
+            EntryAt(ent.Position + offset).Remove(ent);
         _entriesByType[(int)ent.Type].Remove(ent);
         _entriesById.Remove(ent.Id);
 
@@ -596,12 +591,10 @@ public partial class Level : Node2D
     // Not intended for fixed blocks
     MoveAction MoveEntity(Entity ent, Vector3I new_pos, bool tween = true) {
         var old_pos = ent.Position;
-        for (int y = 0; y < ent.Size().y; ++y)
-            for (int x = 0; x < ent.Size().x; ++x)
-                EntryAt(ent.Position + new Vector3I(x, y, 0)).Remove(ent);
-        for (int y = 0; y < ent.Size().y; ++y)
-            for (int x = 0; x < ent.Size().x; ++x)
-                EntryAt(new_pos + new Vector3I(x, y, 0)).Add(ent);
+        foreach (Vector3I offset in ent.Shape())
+            EntryAt(ent.Position + offset).Remove(ent);
+        foreach (Vector3I offset in ent.Shape())
+            EntryAt(new_pos + offset).Add(ent);
         var (XY, Scale) = ent.SetPosition(new_pos, tween);
         if (tween)
             _tweenGrouping.AddTween(new TweenEntityPositionEntry(ent, XY, Scale));
@@ -680,9 +673,11 @@ public partial class Level : Node2D
                     var mapPosition = cellPosition - _levelFile.Base;
                     var cellIndex = (mapPosition.z * _levelFile.Size.y + mapPosition.y) * _levelFile.Size.x + mapPosition.x;
                     var lowerCellIndex = ((mapPosition.z - 1) * _levelFile.Size.y + mapPosition.y) * _levelFile.Size.x + mapPosition.x;
-                    if (_levelFile.Map[cellIndex] != 0) {
-                        tileMap.SetCell(x, y, z == 0 ? 0 : 1);
-                        var ent = new Entity.Fixed(Global.Instance(this).NextEntityID(), cellPosition);
+
+                    var cell = _levelFile.Map[cellIndex];
+                    if (cell != LevelFile.Tile.Invalid) {
+                        tileMap.SetCell(x, y, Global.Tile.FromLevelFileTile(cell, z));
+                        var ent = new Entity.Fixed(Global.Instance(this).NextEntityID(), cellPosition, cell);
                         AddEntity(ent, cellPosition);
                     }
                 }
@@ -794,8 +789,6 @@ public partial class Level : Node2D
                 if (e.HandleSquished())
                     DeleteEntityUndoable(e, new DefeatParams.Squish(){ Direction = dir.XY });
         
-        //HandlePlayerBaddyCollision(Moving);
-        //HandleHazardousSurface(Moving);
         return Moving;
     }
 
@@ -861,39 +854,40 @@ public partial class Level : Node2D
     }
 
         
-    //void HandleHazardousSurface(IEnumerable<Entity> moved) {
-    //    foreach (var ent in moved) {
-    //        if (!ent.Alive || ent.Type != Entity.EntityType.Player)
-    //            continue;
-    //        var below = EntryAt(ent.Position + ent.Gravity);
-    //        foreach (var block in below.NodeBlocks(-ent.Gravity))
-    //            if (block is Block.Ent ent1 && ent1.BlockType_() == Block.BlockType.Spikes) {
-    //                DeleteEntityUndoable(ent);
-    //                SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
-    //                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
-    //                break;
-    //            }
-    //    }
-    //}
+    void HandleHazardousSurface() {
+        foreach (var ent in _entriesByType[(int)Entity.EntityType.Player].entities.Values.ToList()) {
+            if (!ent.Alive || ent.Type != Entity.EntityType.Player)
+                continue;
+            var below = EntryAt(ent.Position + ent.Gravity);
+            foreach (var ent1 in below.entities.Values)
+                if (ent1 is Entity.Fixed @fixed && @fixed.Tile == LevelFile.Tile.Spikes) {
+                    DeleteEntityUndoable(ent);
+                    //SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
+                    //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
+                    break;
+                }
+        }
+    }
         
     // After rock movement, handle things getting utterly obliterated by rocks
-    void HandleRockDestruction() {
-        var rocks = _entriesByType[(int)Entity.EntityType.Rock].entities.Values.ToList();
-        foreach (var rock in rocks) {
-            if (!rock.Alive)
-                continue;
-            var others = EntriesAt(rock.Aabb).SelectMany(e => e.entities.Values).ToList();
-            foreach (var other in others) {
-                if (rock.Alive && other.Alive && (
-                        other.Type == Entity.EntityType.Player ||
-                        (other is Block.Ent block && block.BlockType == Block.BlockType.Brittle)
-                    )) {
-                    //SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, player.Position, Vector3I.Up, Entity.TweenTime);
-                    //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
-                    DeleteEntityUndoable(other);
-                }
+    void HandleRockDestruction(RockCollisionResult rockResult) {
+        GD.Print("Rock destruction");
+        foreach (var pos in rockResult.overlappedPositions)
+            GD.Print($"    {pos}");
+        var others = EntriesAt(rockResult.overlappedPositions).SelectMany(e => e.entities.Values).ToList();
+        foreach (var other in others) {
+            if (other.Alive && (
+                    other.Type == Entity.EntityType.Player ||
+                    (other is Block.Ent block && block.BlockType == Block.BlockType.Brittle)
+                )) {
+                //SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, player.Position, Vector3I.Up, Entity.TweenTime);
+                //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
+                DeleteEntityUndoable(other);
             }
         }
+        foreach (var block in rockResult.extraDestroyedBlocks)
+            if (block.Alive)
+                DeleteEntityUndoable(block);
     }
 
     // Win: player and stairs overlap
@@ -910,49 +904,6 @@ public partial class Level : Node2D
             }
         }
         return false;
-    }
-
-    readonly List<(float, List<Vector2>)> _overlappingEntityOffsets = new List<(float, List<(double, double)>)>() {
-        (1.0f,  new List<(double, double)>(){ (0.0, 0.0) }),
-        (0.75f, new List<(double, double)>(){ (-0.125, 0.125), (0.125, -0.125) }),
-        (0.65f, new List<(double, double)>(){ (0.175, 0.175), (-0.175, 0.175), (0.0, -0.175) }),
-        (0.6f,  new List<(double, double)>(){ (0.2, 0.2), (-0.2, 0.2), (0.2, -0.2), (-0.2, -0.2) }),
-        (0.5f,  new List<(double, double)>(){ (0.25, 0.25), (-0.25, 0.25), (0.0, 0.0), (0.25, -0.25), (-0.25, -0.25) }),
-        (0.5f,  new List<(double, double)>(){ (0.25, 0.25), (0.0, 0.11), (-0.25, 0.25), (0.25, -0.11), (0.0, -0.25), (-0.25, -0.11) }),
-    }
-        .Select(x => (x.Item1, x.Item2.Select(v => new Vector2((float)v.Item1, (float)v.Item2)).ToList())).ToList();
-
-    (float Scale, List<Vector2> Offsets) OverlappingEntityOffsets(int numEntities) {
-        if (numEntities <= _overlappingEntityOffsets.Count)
-            return _overlappingEntityOffsets[numEntities - 1];
-
-        const float Overlap = 0.4f;
-        int itemsPerSide = (int)Math.Ceiling(Math.Sqrt(numEntities));
-        float divisor = itemsPerSide - (itemsPerSide - 1) * Overlap;
-        float spacing = (1.0f - Overlap) / divisor;
-        float initialOffset = 0.5f - 0.5f / divisor;
-        return (1.0f / divisor, Enumerable.Range(0, numEntities).Select(i => {
-            var x = initialOffset - i % itemsPerSide * spacing;
-            var y = initialOffset - i / itemsPerSide * spacing;
-            return new Vector2(x, y);
-        }).ToList());
-    }
-
-    void AdjustEntityPositions(Vector2I tile, bool tween) {
-        var floorEntities = EntryAt(new Vector3I(tile.x, tile.y, 0)).entities.Values;
-        var wallEntities = EntryAt(new Vector3I(tile.x, tile.y, 1)).entities.Values;
-        
-        // Separate entities in the same position from each other
-        var nonFixedEntities = wallEntities.Where(f => f.Type != Entity.EntityType.Fixed).ToList();
-        if (nonFixedEntities.Count > 0) {
-            nonFixedEntities.Sort((a, b) => a.Id.CompareTo(b.Id));
-            var (Scale, Offsets) = OverlappingEntityOffsets(nonFixedEntities.Count);
-            foreach (var (ent, offset) in nonFixedEntities.Zip(Offsets, (x, y) => (x, y))) {
-                var (Changed, Pos, Scale2) = ent.SetOffsetPosition(offset, Scale, tween);
-                if (tween && Changed)
-                    _tweenGrouping.AddTween(new TweenEntityOffsetPositionEntry(ent, Pos, Scale));
-            }
-        }
     }
 
     void AdjustVisualEffects(bool tween) {
@@ -983,6 +934,7 @@ public partial class Level : Node2D
         
         MovePlayers(input);
         MoveRocks();
+        HandleHazardousSurface();
         HandleGravity();
                     
         // This is just for display

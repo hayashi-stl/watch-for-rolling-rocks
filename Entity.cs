@@ -72,7 +72,7 @@ public class Entity
             maker.AddChild(node);
             node.Owner = node.GetTree().EditedSceneRoot;
 
-            var (XY, ZIndex) = Util.FromTileSpace(File.Position, node.Size());
+            var (XY, ZIndex) = Util.FromTileSpace(File.Position);
             node.BasePosition = XY;
             node.ZIndex = ZIndex;
 
@@ -102,7 +102,12 @@ public class Entity
         Type = type;
     }
 
-    public virtual Vector2I Size() => EntityNode.Size();
+    public virtual List<Vector3I> Shape() => new List<Vector3I>(){ Vector3I.Zero };
+
+    public virtual List<Vector3I> Positions() => Shape().Select(v => Position + v).ToList();
+
+    // Whether this entity intersects another entity. Uses shapes to compare.
+    public bool Intersects(Entity other) => Positions().Intersect(other.Positions()).Any();
 
     // Whether the entity is a fixed block. It can't even be moved by gravity.
     public virtual bool IsFixed() => false;
@@ -126,7 +131,9 @@ public class Entity
     // The direction the entity is facing.
     public Vector3I Direction => _dir;
 
-    public AABB Aabb => new AABB((Vector3)Position, new Vector3(Size().x, Size().y, 1.0f));
+    public AABB Aabb => Shape()
+        .Select(offset => new AABB((Vector3)(Position + offset), Vector3.One))
+        .Aggregate((a, b) => a.Merge(b));
 
     public Vector3I SupportVector(Vector3I dir) {
         return (Vector3I)Aabb.GetSupport(-(Vector3)dir).Round();
@@ -155,7 +162,7 @@ public class Entity
     // Returns the value to use for tweening
     public virtual (Vector2 Pos, float Scale) SetPosition(Vector3I pos, bool tween) {
         _pos = pos;
-        var newPos = Util.FromTileSpace(pos, Size());
+        var newPos = Util.FromTileSpace(pos);
         var scale = pos.z > 0 ? EntityNode.WallLayerScale : 1.0f;
         if (!tween) {
             EntityNode.BasePosition = newPos.XY;
@@ -258,13 +265,14 @@ public class Entity
     }
 
     public partial class Fixed : Entity {
-        public Fixed(int id, Vector3I position) : base(id, EntityType.Fixed) {
+        public int Tile { get; private set; }
+
+        public Fixed(int id, Vector3I position, int tile) : base(id, EntityType.Fixed) {
             _pos = position;
             _dir = Vector3I.Zero;
+            Tile = tile;
         }
             
-        public override Vector2I Size() => Vector2I.One;
-
         public override bool IsFixed() => true;
         
         public override bool IsBlock(Vector3I dir) => true;

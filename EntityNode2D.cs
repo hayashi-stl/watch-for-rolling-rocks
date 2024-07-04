@@ -22,6 +22,8 @@ public abstract partial class EntityNode2D : Node2D, IEntityNode {
             CalcPositionAndScale();
         }
     }
+
+    protected virtual Vector2 NaturalOffsetPosition => Vector2.Zero;
     Vector2 _offsetPosition = Vector2.Zero;
     public Vector2 OffsetPosition {
         get => _offsetPosition;
@@ -84,10 +86,8 @@ public abstract partial class EntityNode2D : Node2D, IEntityNode {
         }
     }
 
-    public virtual Vector2I Size() => Vector2I.One;
-
     void CalcPositionAndScale() {
-        Position = BasePosition + OffsetPosition + BumpOffsetPosition;
+        Position = BasePosition + NaturalOffsetPosition + OffsetPosition + BumpOffsetPosition;
         Scale = BaseScale * OffsetScale * Vector2.One;
         float squishAngle = Vector2.Down.AngleTo(SquishDirection);
 
@@ -130,7 +130,7 @@ public abstract partial class EntityNode2D : Node2D, IEntityNode {
     public LevelFile.EntityFile LevelEntityFile() {
         var rotated = (Vector2I)Vector2.Down.Rotated(Rotation).Round();
         var entityFile = new LevelFile.EntityFile {
-            Position = Util.ToTileSpace(Position, ZIndex, Size()),
+            Position = Util.ToTileSpace(Position - NaturalOffsetPosition, ZIndex),
             Direction = new Vector3I(rotated.x, rotated.y, 0),
             Gravity = Vector3I.Forward,
             CustomData = LevelEntityCustomParams()

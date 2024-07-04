@@ -33,6 +33,8 @@ public class LevelFile
     public class BlockFile : EntityCustomData {
         [JsonConverter(typeof(StringEnumConverter))]
         public Block.BlockType Type { get; set; }
+        [JsonConverter(typeof(BlockShapeConverter))]
+        public List<Vector2I> Shape { get; set; } = new List<Vector2I>(){ Vector2I.Zero };
     }
     public class StairsFile : EntityCustomData {}
 
@@ -51,6 +53,40 @@ public class LevelFile
     public Vector3I Size { get; set; }
     public List<int> Map { get; set; } // row-major then plane-major
     public List<EntityFile> Entities { get; set; }
+
+    public class Tile {
+        public const int Invalid = 0;
+        public const int Block = 1;
+        public const int Spikes = 2;
+    }
+
+    public class Vector2IJsonConverter : JsonConverter<Vector2I>
+    {
+        public override Vector2I ReadJson(JsonReader reader, Type objectType, Vector2I existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            var arr = serializer.Deserialize<int[]>(reader);
+            return new Vector2I(arr[0], arr[1]);
+        }
+
+        public override void WriteJson(JsonWriter writer, Vector2I value, JsonSerializer serializer)
+        {
+            writer.WriteRawValue($"[{value.x}, {value.y}]");
+        }
+    }
+
+    public class BlockShapeConverter : JsonConverter<List<Vector2I>>
+    {
+        public override List<Vector2I> ReadJson(JsonReader reader, Type objectType, List<Vector2I> existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            return serializer.Deserialize<List<Vector2I>>(reader);
+        }
+
+        public override void WriteJson(JsonWriter writer, List<Vector2I> value, JsonSerializer serializer)
+        {
+            var str = "[" + string.Join(", ", value.Select(v => $"[{v.x}, {v.y}]")) + "]";
+            writer.WriteRawValue(str);
+        }
+    }
 
     public class Vector3IJsonConverter : JsonConverter<Vector3I>
     {
@@ -88,6 +124,7 @@ public class LevelFile
 
     public string ToJson() {
         var serializer = new JsonSerializer { Formatting = Formatting.Indented };
+        serializer.Converters.Add(new Vector2IJsonConverter());
         serializer.Converters.Add(new Vector3IJsonConverter());
         serializer.Converters.Add(new SerialMapJsonConverter{ Size = Size });
         serializer.Converters.Add(EntityCustomData.Converter());
@@ -101,6 +138,7 @@ public class LevelFile
 
     public static LevelFile FromJson(string json) {
         var serializer = new JsonSerializer { Formatting = Formatting.Indented };
+        serializer.Converters.Add(new Vector2IJsonConverter());
         serializer.Converters.Add(new Vector3IJsonConverter());
         serializer.Converters.Add(EntityCustomData.Converter());
         var jsonReader = new JsonTextReader(new StringReader(json));

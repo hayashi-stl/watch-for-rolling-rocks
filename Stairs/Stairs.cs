@@ -10,8 +10,6 @@ public partial class Stairs : EntityNode2D
 {
     Sprite _activeVisual;
 
-    public override Vector2I Size() => Vector2I.One;
-
     public override Entity LevelEntity(int id) {
         return new Ent(id, this);
     }

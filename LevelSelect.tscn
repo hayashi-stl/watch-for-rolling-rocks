@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://Counter.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://LevelSelect.cs" type="Script" id=2]
@@ -11,6 +11,10 @@
 [ext_resource path="res://Level/004.json" type="Resource" id=9]
 [ext_resource path="res://Level/005.json" type="Resource" id=10]
 [ext_resource path="res://Level/006.json" type="Resource" id=11]
+[ext_resource path="res://Level/007.json" type="Resource" id=12]
+[ext_resource path="res://Level/008.json" type="Resource" id=13]
+[ext_resource path="res://Level/009.json" type="Resource" id=14]
+[ext_resource path="res://Level/010.json" type="Resource" id=15]
 
 [sub_resource type="Theme" id=1]
 
@@ -123,3 +127,43 @@ theme = SubResource( 5 )
 text = "Rolling All Over"
 script = ExtResource( 3 )
 Level = ExtResource( 11 )
+
+[node name="Button9" type="Button" parent="."]
+margin_left = 512.0
+margin_top = 896.0
+margin_right = 960.0
+margin_bottom = 960.0
+theme = SubResource( 5 )
+text = "Multiple Blockages"
+script = ExtResource( 3 )
+Level = ExtResource( 12 )
+
+[node name="Button10" type="Button" parent="."]
+margin_left = 512.0
+margin_top = 960.0
+margin_right = 960.0
+margin_bottom = 1024.0
+theme = SubResource( 5 )
+text = "Multiple Blockages 2"
+script = ExtResource( 3 )
+Level = ExtResource( 13 )
+
+[node name="Button11" type="Button" parent="."]
+margin_left = 1024.0
+margin_top = 448.0
+margin_right = 1472.0
+margin_bottom = 512.0
+theme = SubResource( 5 )
+text = "Avalanche!"
+script = ExtResource( 3 )
+Level = ExtResource( 14 )
+
+[node name="Button12" type="Button" parent="."]
+margin_left = 1024.0
+margin_top = 512.0
+margin_right = 1472.0
+margin_bottom = 576.0
+theme = SubResource( 5 )
+text = "Tunnel Vision Rocks"
+script = ExtResource( 3 )
+Level = ExtResource( 15 )

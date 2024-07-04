@@ -1,0 +1,95 @@
+{
+  "Name": "Multiple Blockages 2",
+  "Controls": "",
+  "Base": [0, 0, 0],
+  "Size": [11, 12, 2],
+  "Map": [
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 1, 1, 1, 1, 1, 2, 2, 1, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+      0, 1, 1, 1, 1, 1, 2, 2, 1, 1, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+      0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0,
+      0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0,
+      0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+      1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1,
+      1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1,
+      1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    ],
+  "Entities": [
+    {
+      "Position": [1, 4, 1],
+      "Direction": [0, -1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Player"
+      }
+    },
+    {
+      "Position": [3, 1, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Rock",
+        "Type": "LineChase"
+      }
+    },
+    {
+      "Position": [2, 9, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Rock",
+        "Type": "LineChase"
+      }
+    },
+    {
+      "Position": [5, 4, 1],
+      "Direction": [1, 0, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Stairs"
+      }
+    },
+    {
+      "Position": [7, 4, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "Brittle",
+        "Shape": [[0, 0], [0, 1]]
+      }
+    },
+    {
+      "Position": [6, 3, 1],
+      "Direction": [0, 1, 0],
+      "Gravity": [0, 0, -1],
+      "CounterValue": null,
+      "CustomData": {
+        "$Type": "Block",
+        "Type": "Brittle",
+        "Shape": [[0, 0], [0, 1]]
+      }
+    }
+  ]
+}
