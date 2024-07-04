@@ -26,6 +26,16 @@ public partial class Rock : EntityNode2D
         }
     }
 
+    bool _moving = false;
+    public bool Moving {
+        get => _moving;
+        set {
+            _moving = value;
+            if (_ready)
+                UpdateTexture();
+        }
+    }
+
     protected override Vector2 NaturalOffsetPosition => Vector2.One * Util.TileSize / 2;
 
     public override Entity LevelEntity(int id) {
@@ -40,9 +50,11 @@ public partial class Rock : EntityNode2D
         
     protected override void UpdateTexture() {
         _activeVisual.Visible = false;
-        var visualName = Type switch {
-            RockType.LineChase => "%LineChase",
-            RockType.DirLineChase => "%DirLineChase",
+        var visualName = (Type, Moving) switch {
+            (RockType.LineChase, false) => "%LineChase",
+            (RockType.LineChase, true) => "%LineChaseMoving",
+            (RockType.DirLineChase, false) => "%DirLineChase",
+            (RockType.DirLineChase, true) => "%DirLineChaseMoving",
             _ => throw new InvalidEnumArgumentException()
         };
         _activeVisual = GetNode<Sprite>(visualName);
@@ -83,7 +95,10 @@ public partial class Rock : EntityNode2D
 
         public int SideLength => 2;
 
-        public bool Moving { get; set; } = false;
+        public bool Moving {
+            get => ThisNode.Moving;
+            set => ThisNode.Moving = value;
+        }
 
         public Ent(int id, Rock node) : base(id, EntityType.Rock) {
             EntityNode = node;
@@ -236,6 +251,7 @@ public partial class Level : Node2D
 
                     Move(rock, -rock.Direction, false);
                     SetRockMovingUndoable(rock, false);
+                    _tweenGrouping.AddTween(new TweenEntityBumpPositionEntry(rock, (Vector2)rock.Direction.XY * Util.TileSize * (0.15f + time)));
 
                     if (hitEntity is Block.Ent b && b.BlockType == Block.BlockType.Brittle && b.Shape().Count == rock.SideLength * rock.SideLength)
                         extraDestroyedBlocks.Add(hitEntity);

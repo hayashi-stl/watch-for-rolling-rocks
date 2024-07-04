@@ -223,7 +223,7 @@ public partial class Level : Node2D
     class TweenEntityBumpPositionEntry : TweenEntry {
         Entity _entity;
         Vector2 _direction;
-        public override string Key => $"BumpOffsetPosition {_entity.Id}";
+        public override string Key => $"EntityPosition {_entity.Id}"; // overlaps with TweenEntityPositionEntry on purpose
         public override Entity ActingEntity => null; // This is a visual effect and can't cause conflicts
 
         public TweenEntityBumpPositionEntry(Entity entity, Vector2 direction) {
@@ -315,7 +315,7 @@ public partial class Level : Node2D
         ulong _id;
         float _delay;
         static ulong nextID;
-        public override string Key => $"SoundEffect {_id}";
+        public override string Key => $"SoundEffect {_sfx.ResourcePath}";
         public override Entity ActingEntity => null;
 
         public TweenSoundEffectEntry(PackedScene sfx, float delay) {
@@ -467,13 +467,11 @@ public partial class Level : Node2D
     }
 
     class DefeatParams {
-        public class Normal : DefeatParams {}
+        public class Normal : DefeatParams {
+            public PackedScene SFX { get; set; } = Global.SFX.Break;
+        }
         public class Punch : DefeatParams {
             public const float KillDelay = 0.025f;
-        }
-
-        public class Squish : DefeatParams {
-            public Vector2I Direction { get; set; }
         }
     }
 
@@ -562,8 +560,10 @@ public partial class Level : Node2D
         switch (param) {
             case DefeatParams.Normal p:
                 ent.Kill(tween); // Invalidate in case there's references left
-                if (tween)
-                    _tweenGrouping.AddTween(new TweenEntityExistenceEntry(ent, false, Entity.TweenTime));
+                if (tween) {
+                    _tweenGrouping.AddTween(new TweenEntityExistenceEntry(ent, false, Entity.TweenTime / 2));
+                    _tweenGrouping.AddTween(new TweenSoundEffectEntry(p.SFX, 0));
+                }
                 break;
             case DefeatParams.Punch p:
                 ent.Kill(tween);
@@ -571,13 +571,6 @@ public partial class Level : Node2D
                     _tweenGrouping.AddTween(new TweenEntityExistenceEntry(ent, false, DefeatParams.Punch.KillDelay));
                     //SpawnParticleEffect(Global.ParticleEffect.BaddyPoof, ent.Position, Vector3I.Up, DefeatParams.Punch.KillDelay);
                     //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, DefeatParams.Punch.KillDelay));
-                }
-                break;
-            case DefeatParams.Squish p:
-                var dir = ent.Squish(p.Direction, tween);
-                if (tween) {
-                    _tweenGrouping.AddTween(new TweenEntitySquishEntry(ent, dir));
-                    //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Squish, 0));
                 }
                 break;
         };
@@ -776,11 +769,11 @@ public partial class Level : Node2D
         //    SpawnParticleEffect(Global.ParticleEffect.Dash, ent.Position, ent.Direction, 0);
         if (!gravity) {
             if (Moving.Any()) {
-            //    _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Move, 0));
+                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Move, 0));
             } else if (doBumpEffect) {
                 foreach (var entity in graph.BumpingEntities(ent))
-                    _tweenGrouping.AddTween(new TweenEntityBumpPositionEntry(entity, (Vector2)dir.XY * Util.TileSize));
-                //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Bump, 0));
+                    _tweenGrouping.AddTween(new TweenEntityBumpPositionEntry(entity, (Vector2)dir.XY * Util.TileSize * 0.15f));
+                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Bump, 0));
             }
         }
         foreach (var e in Moving)
@@ -789,7 +782,7 @@ public partial class Level : Node2D
         foreach (var e in Squished)
             if (e.Alive)
                 if (e.HandleSquished())
-                    DeleteEntityUndoable(e, new DefeatParams.Squish(){ Direction = dir.XY });
+                    DeleteEntityUndoable(e, new DefeatParams.Normal());
         
         return Moving;
     }
@@ -881,12 +874,14 @@ public partial class Level : Node2D
                 )) {
                 //SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, player.Position, Vector3I.Up, Entity.TweenTime);
                 //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
-                DeleteEntityUndoable(other);
+                DeleteEntityUndoable(other, new DefeatParams.Normal(){
+                    SFX = other is Block.Ent ? Global.SFX.Break : Global.SFX.Squish
+                });
             }
         }
         foreach (var block in rockResult.extraDestroyedBlocks)
             if (block.Alive)
-                DeleteEntityUndoable(block);
+                DeleteEntityUndoable(block, new DefeatParams.Normal(){ SFX = Global.SFX.Break });
     }
 
     // Win: player and stairs overlap

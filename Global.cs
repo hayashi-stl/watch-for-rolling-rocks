@@ -58,7 +58,12 @@ public partial class Global : Node
     }
 
     public class SFX {
+        public static readonly PackedScene Move = GD.Load<PackedScene>("res://Sound/MoveSFX.tscn");
+        public static readonly PackedScene Bump = GD.Load<PackedScene>("res://Sound/BumpSFX.tscn");
+        public static readonly PackedScene Break = GD.Load<PackedScene>("res://Sound/BreakSFX.tscn");
+        public static readonly PackedScene Squish = GD.Load<PackedScene>("res://Sound/SquishSFX.tscn");
     }
+
 
     public int NextEntityID() {
         _currEntityID += 1;

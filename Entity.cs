@@ -230,7 +230,7 @@ public class Entity
     public IEnumerable<SceneTreeTween> TweenBumpOffsetPosition(Vector2 dir, float delay) {
         var tween = EntityNode.GetTree().CreateTween();
         tween.TweenInterval(delay);
-        tween.TweenProperty(EntityNode, "BumpOffsetPosition", dir * 0.15f, TweenTime * 0.25f);
+        tween.TweenProperty(EntityNode, "BumpOffsetPosition", dir, TweenTime * 0.25f);
         tween.TweenProperty(EntityNode, "BumpOffsetPosition", Vector2.Zero, TweenTime * 0.75f);
         return new List<SceneTreeTween>(){ tween };
     }
@@ -238,7 +238,7 @@ public class Entity
     public IEnumerable<SceneTreeTween> TweenDirection(float angle, float delay) {
         var tween = EntityNode.GetTree().CreateTween();
         tween.TweenInterval(delay);
-        tween.TweenProperty(EntityNode, "BaseRotation", angle, TweenTime);
+        tween.TweenProperty(EntityNode, "BaseRotation", angle, Type == EntityType.Rock ? 0.0f : TweenTime);
         return new List<SceneTreeTween>(){ tween };
     }
 
