@@ -17,7 +17,6 @@ public partial class Stage : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready() {
         GetNode<Label>("%Title").Text = _levelFile.Name;
-        GetNode<Label>("%Controls").Text = _levelFile.Controls;
 
         var windowSize = GetViewport().GetVisibleRect().Size;
         level = Level.Instantiate(_levelFile);
@@ -36,7 +35,11 @@ public partial class Stage : Node
     }
 
     public void SetLevelClear(bool is_clear) {
-        GetNode<Label>("%Clear").Visible = is_clear;
+        var clear = GetNode<Label>("%Clear");
+        clear.Visible = is_clear;
+        clear.RectScale = Vector2.Zero;
+        var tween = CreateTween();
+        tween.TweenProperty(clear, "rect_scale", Vector2.One, 0.5f).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
         GetNode<Timer>("%Timer").Start();
     }
 

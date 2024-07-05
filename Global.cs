@@ -55,13 +55,19 @@ public partial class Global : Node
     }
 
     public class ParticleEffect {
+        public static readonly PackedScene Dash = GD.Load<PackedScene>("res://Effect/Dash.tscn");
+        public static readonly PackedScene BlockBreak = GD.Load<PackedScene>("res://Effect/BlockBreak.tscn");
+        public static readonly PackedScene PlayerPoof = GD.Load<PackedScene>("res://Effect/PlayerPoof.tscn");
     }
 
     public class SFX {
         public static readonly PackedScene Move = GD.Load<PackedScene>("res://Sound/MoveSFX.tscn");
+        public static readonly PackedScene Roll = GD.Load<PackedScene>("res://Sound/RollSFX.tscn");
         public static readonly PackedScene Bump = GD.Load<PackedScene>("res://Sound/BumpSFX.tscn");
         public static readonly PackedScene Break = GD.Load<PackedScene>("res://Sound/BreakSFX.tscn");
         public static readonly PackedScene Squish = GD.Load<PackedScene>("res://Sound/SquishSFX.tscn");
+        public static readonly PackedScene Poof = GD.Load<PackedScene>("res://Sound/PoofSFX.tscn");
+        public static readonly PackedScene Clear = GD.Load<PackedScene>("res://Sound/ClearSFX.tscn");
     }
 
 

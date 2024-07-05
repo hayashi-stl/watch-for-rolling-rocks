@@ -765,8 +765,8 @@ public partial class Level : Node2D
 
         graph.MarkMovability();
         var (Moving, Squished) = graph.MovingSquishedEntities(ent);
-        //if (Moving.Contains(ent))
-        //    SpawnParticleEffect(Global.ParticleEffect.Dash, ent.Position, ent.Direction, 0);
+        if (Moving.Contains(ent))
+            SpawnParticleEffect(Global.ParticleEffect.Dash, ent.Position, ent.Direction, 0);
         if (!gravity) {
             if (Moving.Any()) {
                 _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Move, 0));
@@ -856,8 +856,8 @@ public partial class Level : Node2D
             var below = EntryAt(ent.Position + ent.Gravity);
             foreach (var ent1 in below.entities.Values)
                 if (ent1 is Entity.Fixed @fixed && @fixed.Tile == LevelFile.Tile.Spikes) {
-                    DeleteEntityUndoable(ent);
-                    //SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
+                    DeleteEntityUndoable(ent, new DefeatParams.Normal(){ SFX = Global.SFX.Poof });
+                    SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, ent.Position, Vector3I.Up, Entity.TweenTime);
                     //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
                     break;
                 }
@@ -871,8 +871,11 @@ public partial class Level : Node2D
             if (other.Alive && (
                     other.Type == Entity.EntityType.Player ||
                     (other is Block.Ent block && block.BlockType == Block.BlockType.Brittle)
-                )) {
-                //SpawnParticleEffect(Global.ParticleEffect.PlayerPoof, player.Position, Vector3I.Up, Entity.TweenTime);
+                ))
+            {
+                foreach (var pos in other.Positions())
+                    SpawnParticleEffect(other is Block.Ent ? Global.ParticleEffect.BlockBreak : Global.ParticleEffect.PlayerPoof,
+                        pos, Vector3I.Up, Entity.TweenTime);
                 //_tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Poof, Entity.TweenTime));
                 DeleteEntityUndoable(other, new DefeatParams.Normal(){
                     SFX = other is Block.Ent ? Global.SFX.Break : Global.SFX.Squish
@@ -880,8 +883,11 @@ public partial class Level : Node2D
             }
         }
         foreach (var block in rockResult.extraDestroyedBlocks)
-            if (block.Alive)
+            if (block.Alive) {
+                foreach (var pos in block.Positions())
+                    SpawnParticleEffect(Global.ParticleEffect.BlockBreak, pos, Vector3I.Up, Entity.TweenTime);
                 DeleteEntityUndoable(block, new DefeatParams.Normal(){ SFX = Global.SFX.Break });
+            }
     }
 
     // Win: player and stairs overlap
@@ -932,6 +938,10 @@ public partial class Level : Node2D
         HandleGravity();
                     
         // This is just for display
+        if (CheckWinCondition()) {
+            _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Clear, 0));
+            _tweenGrouping.BatchTweens();
+        }
         AdjustVisualEffects(true);
         _tweenGrouping.Execute(this);
             

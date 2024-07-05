@@ -285,8 +285,10 @@ public partial class Level : Node2D
         RocksDetectPlayers(rocks);
 
         foreach (var rock in rocks) {
-            if (rock.Moving)
+            if (rock.Moving) {
                 Move(rock, rock.Direction, false);
+                _tweenGrouping.AddTween(new TweenSoundEffectEntry(Global.SFX.Roll, 0));
+            }
         }
 
         var result = HandleRockCollision(rocks);

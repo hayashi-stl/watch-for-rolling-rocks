@@ -1,0 +1,327 @@
+<!DOCTYPE qtractorSession>
+<session name="SFX" version="Qtractor 0.9.39 [HEAD]">
+ <properties>
+  <directory>/home/hayastl/Discrete Decrement/Intermediate/Sound/SFX</directory>
+  <description></description>
+  <sample-rate>44100</sample-rate>
+  <tempo>125</tempo>
+  <ticks-per-beat>960</ticks-per-beat>
+  <beats-per-bar>4</beats-per-bar>
+  <beat-divisor>2</beat-divisor>
+ </properties>
+ <state>
+  <loop-start>0</loop-start>
+  <loop-end>42204</loop-end>
+  <punch-in>0</punch-in>
+  <punch-out>0</punch-out>
+ </state>
+ <files>
+  <audio-list>
+   <file name="Roll.ogg">../../../../Watch for Rolling Rocks/Sound/Roll.ogg</file>
+   <file name="Roll.wav">../../../../Watch for Rolling Rocks/Sound/Roll.wav</file>
+   <file name="SFX-export-1.wav">SFX-export-1.wav</file>
+  </audio-list>
+  <midi-list>
+   <file name="SFX-Clear-1.mid">SFX-Clear-1.mid</file>
+  </midi-list>
+ </files>
+ <devices>
+  <audio-engine>
+   <audio-control>
+    <transport-mode>duplex</transport-mode>
+    <timebase>1</timebase>
+   </audio-control>
+   <audio-bus name="Master" mode="duplex">
+    <monitor>0</monitor>
+    <channels>2</channels>
+    <auto-connect>1</auto-connect>
+    <input-gain>0.000316228</input-gain>
+    <input-panning>0</input-panning>
+    <input-controllers/>
+    <input-plugins/>
+    <input-connects>
+     <connect index="0">
+      <client>system</client>
+      <port>capture_1</port>
+     </connect>
+     <connect index="1">
+      <client>system</client>
+      <port>capture_2</port>
+     </connect>
+    </input-connects>
+    <output-gain>1</output-gain>
+    <output-panning>0</output-panning>
+    <output-controllers/>
+    <output-plugins/>
+    <output-connects>
+     <connect index="0">
+      <client>system</client>
+      <port>playback_1</port>
+     </connect>
+     <connect index="1">
+      <client>system</client>
+      <port>playback_2</port>
+     </connect>
+    </output-connects>
+   </audio-bus>
+  </audio-engine>
+  <midi-engine>
+   <midi-control>
+    <mmc-mode>duplex</mmc-mode>
+    <mmc-device>127</mmc-device>
+    <spp-mode>duplex</spp-mode>
+    <clock-mode>none</clock-mode>
+   </midi-control>
+   <midi-bus name="Master" mode="duplex">
+    <monitor>0</monitor>
+    <input-gain>1</input-gain>
+    <input-panning>0</input-panning>
+    <input-controllers/>
+    <input-plugins>
+     <audio-output-bus>0</audio-output-bus>
+     <audio-output-auto-connect>1</audio-output-auto-connect>
+    </input-plugins>
+    <input-connects/>
+    <output-gain>1</output-gain>
+    <output-panning>0</output-panning>
+    <output-controllers/>
+    <output-plugins>
+     <audio-output-bus>0</audio-output-bus>
+     <audio-output-auto-connect>1</audio-output-auto-connect>
+    </output-plugins>
+    <output-connects/>
+    <midi-map>
+     <midi-patch channel="1">
+      <midi-bank-sel-method>0</midi-bank-sel-method>
+     </midi-patch>
+     <midi-patch channel="0">
+      <midi-bank-sel-method>0</midi-bank-sel-method>
+     </midi-patch>
+    </midi-map>
+   </midi-bus>
+  </midi-engine>
+ </devices>
+ <tracks>
+  <view>
+   <pixels-per-beat>32</pixels-per-beat>
+   <horizontal-zoom>240</horizontal-zoom>
+   <vertical-zoom>100</vertical-zoom>
+   <snap-per-beat>0</snap-per-beat>
+   <edit-head>39908</edit-head>
+   <edit-tail>64827</edit-tail>
+  </view>
+  <track name="Track 1" type="audio">
+   <properties>
+    <input-bus>Master</input-bus>
+    <output-bus>Master</output-bus>
+   </properties>
+   <state>
+    <mute>0</mute>
+    <solo>0</solo>
+    <record>0</record>
+    <monitor>0</monitor>
+    <gain>0.213139</gain>
+    <panning>0</panning>
+   </state>
+   <view>
+    <height>96</height>
+    <background-color>#ccffff</background-color>
+    <foreground-color>#667f7f</foreground-color>
+   </view>
+   <controllers/>
+   <curve-file>
+    <curve-items>
+     <curve-item name="Track 1 ゲイン" mode="Linear" index="2">
+      <type>CONTROLLER</type>
+      <channel>0</channel>
+      <param>7</param>
+      <mode>Linear</mode>
+      <process>1</process>
+      <capture>0</capture>
+      <locked>0</locked>
+      <logarithmic>1</logarithmic>
+      <color>#800000</color>
+     </curve-item>
+    </curve-items>
+    <filename>SFX-Track_1_curve-66.mid</filename>
+    <current>2</current>
+   </curve-file>
+   <clips>
+    <clip name="Roll">
+     <properties>
+      <name>Roll</name>
+      <start>0</start>
+      <offset>0</offset>
+      <length>178034</length>
+      <gain>1</gain>
+      <panning>0</panning>
+      <fade-in type="InQuad">0</fade-in>
+      <fade-out type="OutQuad">0</fade-out>
+     </properties>
+     <audio-clip>
+      <filename>../../../../Watch for Rolling Rocks/Sound/Roll.ogg</filename>
+      <time-stretch>2</time-stretch>
+      <pitch-shift>0.5</pitch-shift>
+      <wsola-time-stretch>1</wsola-time-stretch>
+      <wsola-quick-seek>0</wsola-quick-seek>
+     </audio-clip>
+    </clip>
+   </clips>
+   <plugins>
+    <plugin type="LV2">
+     <filename>http://calf.sourceforge.net/plugins/Filter</filename>
+     <index>0</index>
+     <label>Calf_Filter</label>
+     <preset></preset>
+     <direct-access-param>-1</direct-access-param>
+     <activated>1</activated>
+     <configs/>
+     <params>
+      <param name="Resonance" index="5">0.707</param>
+      <param name="Frequency" index="4">1088.8</param>
+      <param name="Inertia" index="7">20</param>
+      <param name="Mode" index="6">0</param>
+      <param name="Input Gain" index="9">1</param>
+      <param name="Bypass" index="8">0</param>
+      <param name="Output Gain" index="10">1</param>
+     </params>
+     <controllers/>
+     <curve-file/>
+     <editor-pos>591,380</editor-pos>
+     <form-pos>0,0</form-pos>
+    </plugin>
+   </plugins>
+  </track>
+  <track name="Clear" type="midi">
+   <properties>
+    <input-bus>Master</input-bus>
+    <output-bus>Master</output-bus>
+    <midi-omni>0</midi-omni>
+    <midi-channel>1</midi-channel>
+    <midi-bank-sel-method>0</midi-bank-sel-method>
+    <midi-drums>0</midi-drums>
+   </properties>
+   <state>
+    <mute>0</mute>
+    <solo>1</solo>
+    <record>0</record>
+    <monitor>0</monitor>
+    <gain>1</gain>
+    <panning>0</panning>
+   </state>
+   <view>
+    <height>96</height>
+    <background-color>#99ffff</background-color>
+    <foreground-color>#4c7f7f</foreground-color>
+   </view>
+   <controllers/>
+   <clips>
+    <clip name="Clear-1">
+     <properties>
+      <name>Clear-1</name>
+      <start>0</start>
+      <offset>0</offset>
+      <length>20950</length>
+      <gain>1</gain>
+      <panning>0</panning>
+      <fade-in type="InQuad">0</fade-in>
+      <fade-out type="OutQuad">0</fade-out>
+     </properties>
+     <midi-clip>
+      <filename>SFX-Clear-1.mid</filename>
+      <track-channel>1</track-channel>
+      <revision>4</revision>
+      <editor-pos>582,386</editor-pos>
+      <editor-horizontal-zoom>380</editor-horizontal-zoom>
+     </midi-clip>
+    </clip>
+   </clips>
+   <plugins>
+    <plugin type="LV2">
+     <filename>http://calf.sourceforge.net/plugins/Monosynth</filename>
+     <index>0</index>
+     <label>Calf_Monosynth</label>
+     <preset></preset>
+     <direct-access-param>-1</direct-access-param>
+     <activated>1</activated>
+     <configs>
+      <config key="urn:qtractor:state#key" type="urn:qtractor:state#type">
+       AAAR33icnZbNjpswEIDP4SlQziuCDSSERnmDVj30VlXIG0yC1tisbZLN29dQrXrAxuPNJUrk
+       z/PNjP9Oo+TVu5bkooWslCaanqMNiQdFdfVTUvMVf4s27I4rMgyso+qXiE83rYdqt7sQ1iZK
+       jPJCWyGvNOFU7wY2Xjuudt8FF+rJ9e38OcEgpI5/R5v5h3r2r4LFW9IoiWuynQZt5qh3wkYa
+       oySNNn/iFxfQD6HIZdSibRdUuk41yzCpBwmOIRdA4SOosgTJ0vmD1kgbV7iB0M5Y6pWtJxNa
+       Lku1PB0JydmxSLLMFYDyO7YtRqfRBDiilKk7kQmzdd3ZjbZjmlpqtT6+VjQglzf6rFvBmHjA
+       GUavRIuA8a1AtZbdNQgxG5cy8oQ3fmakOf6We3E1TLiZozGrzNDpyy1k3c9QSFda8YWKBRas
+       J8qeuSNC3zUdPIX+cWPYSMGXvEDTMtEjX+aAnGEmqO8+LF7YkYZZvyGtMMOVltTa8BXmQe7L
+       NPI1oONNyMY1yMcg1DKIm8BhieN65J0S/AtIK98XFF6hrNXarwD21JEzxvBKeWP2B78uKeze
+       t8ONKFr3ogko8/SuIj3lllPVuWBsV4nzjlPmoUedO8VF3SkLuxknwHk4znvL/Ds/Uf89VOcJ
+       TtMDdnqIVqZodU/MefxRpS/pOd7+EJ+6jkHIDEqTBK0OwpCZMjNofZrcPw2CWCOINYJYI681
+       glhjiDWGWGOINfZaY4h1BrHOINYZxDrzWmcQ6xxinUOsc4h17rXOIdYFxLqAWBcQ68JrXUCs
+       9xDrPcR6D7Hee633EOsDxPoAsT5ArA9e6wPEuoRYlxDrEmJdeq1LiPURYn2EWB8h1kev9fG/
+       9XRbJlH0F5w9J94=</config>
+     </configs>
+     <params>
+      <param name="LFO1 Delay" index="49">0.5</param>
+      <param name="LFO1 Rate" index="48">5</param>
+      <param name="Osc2 Unison Detune" index="51">2</param>
+      <param name="Osc2 Unison" index="50">0</param>
+      <param name="MIDI Channel" index="53">0</param>
+      <param name="Osc1 Transpose" index="52">0</param>
+      <param name="Osc2 Wave" index="3">6</param>
+      <param name="Osc1 Wave" index="2">4</param>
+      <param name="Osc2 PW" index="5">0</param>
+      <param name="Osc1 PW" index="4">0</param>
+      <param name="Osc2 Transpose" index="7">12</param>
+      <param name="O1&lt;>2 Detune" index="6">10</param>
+      <param name="O1&lt;>2 Mix" index="9">0.25</param>
+      <param name="Phase mode" index="8">0</param>
+      <param name="Cutoff" index="11">33</param>
+      <param name="Filter" index="10">1</param>
+      <param name="Separation" index="13">0</param>
+      <param name="Resonance" index="12">3</param>
+      <param name="Env->Res" index="15">1</param>
+      <param name="Env->Cutoff" index="14">8000</param>
+      <param name="EG1 Attack" index="17">1</param>
+      <param name="Env->Amp" index="16">0</param>
+      <param name="EG1 Sustain" index="19">0.5</param>
+      <param name="EG1 Decay" index="18">350</param>
+      <param name="EG1 Release" index="21">100</param>
+      <param name="EG1 Fade" index="20">0</param>
+      <param name="Legato Mode" index="23">0</param>
+      <param name="Key Follow" index="22">0</param>
+      <param name="Vel->Filter" index="25">0.5</param>
+      <param name="Portamento" index="24">1</param>
+      <param name="Volume" index="27">0.5</param>
+      <param name="Vel->Amp" index="26">0</param>
+      <param name="LFO1 Rate" index="29">5</param>
+      <param name="PBend Range" index="28">200</param>
+      <param name="LFO1->Filter" index="31">0</param>
+      <param name="LFO1 Delay" index="30">0.5</param>
+      <param name="LFO1->PW" index="33">0</param>
+      <param name="LFO1->Pitch" index="32">100</param>
+      <param name="Scale Detune" index="35">1</param>
+      <param name="ModWheel->LFO1" index="34">1</param>
+      <param name="EG2->Res" index="37">0.3</param>
+      <param name="EG2->Cutoff" index="36">0</param>
+      <param name="EG2 Attack" index="39">1</param>
+      <param name="EG2->Amp" index="38">1</param>
+      <param name="EG2 Sustain" index="41">0.5</param>
+      <param name="EG2 Decay" index="40">100</param>
+      <param name="Release" index="43">50</param>
+      <param name="EG2 Fade" index="42">0</param>
+      <param name="Osc1 Window" index="45">0</param>
+      <param name="Osc1 Stretch" index="44">1</param>
+      <param name="LFO2 Trigger Mode" index="47">0</param>
+      <param name="LFO1 Trigger Mode" index="46">0</param>
+     </params>
+     <controllers/>
+     <editor-pos>537,374</editor-pos>
+     <form-pos>0,0</form-pos>
+    </plugin>
+    <audio-output-bus>0</audio-output-bus>
+    <audio-output-auto-connect>1</audio-output-auto-connect>
+   </plugins>
+  </track>
+ </tracks>
+</session>
+

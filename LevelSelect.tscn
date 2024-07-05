@@ -1,10 +1,12 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://Counter.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://LevelSelect.cs" type="Script" id=2]
 [ext_resource path="res://LevelSelectButton.cs" type="Script" id=3]
+[ext_resource path="res://Level/Background.png" type="Texture" id=4]
 [ext_resource path="res://Level/001.json" type="Resource" id=5]
 [ext_resource path="res://Level/002.json" type="Resource" id=6]
+[ext_resource path="res://Rock/Rock.png" type="Texture" id=7]
 [ext_resource path="res://Level/003.json" type="Resource" id=8]
 [ext_resource path="res://Level/004.json" type="Resource" id=9]
 [ext_resource path="res://Level/005.json" type="Resource" id=10]
@@ -15,19 +17,22 @@
 [ext_resource path="res://Level/010.json" type="Resource" id=15]
 [ext_resource path="res://Level/011.json" type="Resource" id=16]
 [ext_resource path="res://Level/012.json" type="Resource" id=17]
+[ext_resource path="res://LevelSelectButton.theme" type="Theme" id=18]
+[ext_resource path="res://Warning.png" type="Texture" id=19]
 
 [sub_resource type="Theme" id=1]
 
 [sub_resource type="DynamicFont" id=2]
 size = 225
+outline_size = 10
+outline_color = Color( 0, 0, 0, 1 )
 font_data = ExtResource( 1 )
 
-[sub_resource type="DynamicFont" id=4]
-size = 41
+[sub_resource type="DynamicFont" id=3]
+size = 66
+outline_size = 5
+outline_color = Color( 0, 0, 0, 1 )
 font_data = ExtResource( 1 )
-
-[sub_resource type="Theme" id=5]
-default_font = SubResource( 4 )
 
 [node name="Level Select" type="Control"]
 anchor_right = 1.0
@@ -36,134 +41,183 @@ script = ExtResource( 2 )
 __meta__ = {
 "_edit_lock_": true
 }
+_initFocus = NodePath("Button11")
+_grid = [ NodePath("Button11"), NodePath("Button6"), NodePath("Button10"), NodePath("Button2"), NodePath("Button7"), NodePath("Button12"), NodePath("Button3"), NodePath("Button8"), NodePath("Button13"), NodePath("Button5"), NodePath("Button9"), NodePath("Button14") ]
+_gridWidth = 3
+
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 960, 540 )
+z_index = -1
+texture = ExtResource( 4 )
+
+[node name="Rock" type="Sprite" parent="."]
+position = Vector2( 288, 448 )
+scale = Vector2( 8, 8 )
+z_index = -1
+texture = ExtResource( 7 )
+
+[node name="Rock3" type="Sprite" parent="."]
+position = Vector2( 416, 192 )
+scale = Vector2( 8, 8 )
+z_index = -1
+texture = ExtResource( 19 )
+
+[node name="Rock4" type="Sprite" parent="."]
+position = Vector2( 1472, 192 )
+scale = Vector2( 8, 8 )
+z_index = -1
+texture = ExtResource( 19 )
+
+[node name="Rock2" type="Sprite" parent="."]
+position = Vector2( 1632, 448 )
+scale = Vector2( 8, 8 )
+z_index = -1
+texture = ExtResource( 7 )
 
 [node name="Title" type="RichTextLabel" parent="."]
 anchor_right = 1.0
-margin_top = 48.0
-margin_bottom = 260.0
+margin_left = 352.0
+margin_top = 96.0
+margin_right = -352.0
+margin_bottom = 592.0
 theme = SubResource( 1 )
+custom_colors/default_color = Color( 0.76, 0.6384, 0.304, 1 )
 custom_fonts/normal_font = SubResource( 2 )
 bbcode_enabled = true
 bbcode_text = "[center]Watch for Rolling Rocks[/center]"
 text = "Watch for Rolling Rocks"
 scroll_active = false
 
+[node name="Title2" type="RichTextLabel" parent="."]
+anchor_right = 1.0
+margin_left = 352.0
+margin_top = 960.0
+margin_right = -352.0
+margin_bottom = 1056.0
+theme = SubResource( 1 )
+custom_colors/default_color = Color( 0.76, 0.6384, 0.304, 1 )
+custom_fonts/normal_font = SubResource( 3 )
+bbcode_enabled = true
+bbcode_text = "[center]made by Hayashi[/center]"
+text = "made by Hayashi"
+scroll_active = false
+
 [node name="Button2" type="Button" parent="."]
-margin_left = 512.0
-margin_top = 448.0
-margin_right = 960.0
-margin_bottom = 512.0
-theme = SubResource( 5 )
+margin_left = 224.0
+margin_top = 704.0
+margin_right = 672.0
+margin_bottom = 768.0
+theme = ExtResource( 18 )
 text = "Run for the Stairs!"
 script = ExtResource( 3 )
 Level = ExtResource( 5 )
 
 [node name="Button3" type="Button" parent="."]
-margin_left = 512.0
-margin_top = 512.0
-margin_right = 960.0
-margin_bottom = 576.0
-theme = SubResource( 5 )
+margin_left = 224.0
+margin_top = 768.0
+margin_right = 672.0
+margin_bottom = 832.0
+theme = ExtResource( 18 )
 text = "Out of the Way!"
 script = ExtResource( 3 )
 Level = ExtResource( 6 )
 
 [node name="Button5" type="Button" parent="."]
-margin_left = 512.0
-margin_top = 576.0
-margin_right = 960.0
-margin_bottom = 640.0
-theme = SubResource( 5 )
+margin_left = 224.0
+margin_top = 832.0
+margin_right = 672.0
+margin_bottom = 896.0
+theme = ExtResource( 18 )
 text = "Brittle Barrier"
 script = ExtResource( 3 )
 Level = ExtResource( 8 )
 
 [node name="Button6" type="Button" parent="."]
-margin_left = 512.0
+margin_left = 736.0
 margin_top = 640.0
-margin_right = 960.0
+margin_right = 1184.0
 margin_bottom = 704.0
-theme = SubResource( 5 )
+theme = ExtResource( 18 )
 text = "Excavation"
 script = ExtResource( 3 )
 Level = ExtResource( 9 )
 
 [node name="Button7" type="Button" parent="."]
-margin_left = 512.0
+margin_left = 736.0
 margin_top = 704.0
-margin_right = 960.0
+margin_right = 1184.0
 margin_bottom = 768.0
-theme = SubResource( 5 )
+theme = ExtResource( 18 )
 text = "Tight Tunnels, Rolling Rocks"
 script = ExtResource( 3 )
 Level = ExtResource( 10 )
 
 [node name="Button8" type="Button" parent="."]
-margin_left = 512.0
+margin_left = 736.0
 margin_top = 768.0
-margin_right = 960.0
+margin_right = 1184.0
 margin_bottom = 832.0
-theme = SubResource( 5 )
+theme = ExtResource( 18 )
 text = "Rolling All Over"
 script = ExtResource( 3 )
 Level = ExtResource( 11 )
 
 [node name="Button9" type="Button" parent="."]
-margin_left = 512.0
+margin_left = 736.0
 margin_top = 832.0
-margin_right = 960.0
+margin_right = 1184.0
 margin_bottom = 896.0
-theme = SubResource( 5 )
+theme = ExtResource( 18 )
 text = "Multiple Blockages"
 script = ExtResource( 3 )
 Level = ExtResource( 12 )
 
 [node name="Button10" type="Button" parent="."]
-margin_left = 512.0
-margin_top = 896.0
-margin_right = 960.0
-margin_bottom = 960.0
-theme = SubResource( 5 )
+margin_left = 1248.0
+margin_top = 640.0
+margin_right = 1696.0
+margin_bottom = 704.0
+theme = ExtResource( 18 )
 text = "Multiple Blockages 2"
 script = ExtResource( 3 )
 Level = ExtResource( 13 )
 
 [node name="Button11" type="Button" parent="."]
-margin_left = 1024.0
-margin_top = 448.0
-margin_right = 1472.0
-margin_bottom = 512.0
-theme = SubResource( 5 )
+margin_left = 224.0
+margin_top = 640.0
+margin_right = 672.0
+margin_bottom = 704.0
+theme = ExtResource( 18 )
 text = "Avalanche!"
 script = ExtResource( 3 )
 Level = ExtResource( 14 )
 
 [node name="Button12" type="Button" parent="."]
-margin_left = 1024.0
-margin_top = 512.0
-margin_right = 1472.0
-margin_bottom = 576.0
-theme = SubResource( 5 )
+margin_left = 1248.0
+margin_top = 704.0
+margin_right = 1696.0
+margin_bottom = 768.0
+theme = ExtResource( 18 )
 text = "Tunnel Vision Rocks"
 script = ExtResource( 3 )
 Level = ExtResource( 15 )
 
 [node name="Button13" type="Button" parent="."]
-margin_left = 1024.0
-margin_top = 576.0
-margin_right = 1472.0
-margin_bottom = 640.0
-theme = SubResource( 5 )
+margin_left = 1248.0
+margin_top = 768.0
+margin_right = 1696.0
+margin_bottom = 832.0
+theme = ExtResource( 18 )
 text = "Just the Right Size"
 script = ExtResource( 3 )
 Level = ExtResource( 16 )
 
 [node name="Button14" type="Button" parent="."]
-margin_left = 1024.0
-margin_top = 640.0
-margin_right = 1472.0
-margin_bottom = 704.0
-theme = SubResource( 5 )
+margin_left = 1248.0
+margin_top = 832.0
+margin_right = 1696.0
+margin_bottom = 896.0
+theme = ExtResource( 18 )
 text = "2 Rocks, 2 Blockages"
 script = ExtResource( 3 )
 Level = ExtResource( 17 )
